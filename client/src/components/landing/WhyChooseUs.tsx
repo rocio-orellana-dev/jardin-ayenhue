@@ -7,7 +7,7 @@ export default function WhyChooseUs() {
     "Sello intercultural que respeta y valora la diversidad.",
     "Infraestructura segura, moderna y acogedora.",
     "Participación activa y real de las familias.",
-    "Alimentación saludable supervisada por nutricionistas.",
+    "Alimentación saludable.",
     "Ambiente bien tratante y afectivo.",
   ];
 

@@ -21,7 +21,7 @@ cloudinary.config({
 // 2. CONFIGURACIÓN DE MULTER (Memoria para subir a la nube)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 } // Límite de 5MB
+  limits: { fileSize: 100 * 1024 * 1024 } // Límite de 5MB
 });
 
 // Rate limiters
@@ -75,19 +75,22 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
 
       const result: any = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: "jardin_ayenhue" },
+          { 
+            folder: "jardin_ayenhue",
+            resource_type: "auto" // <--- ¡MAGIA! Esto permite detectar si es video o imagen
+          },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
           }
         );
-        streamifier.createReadStream(req.file!.buffer).pipe(uploadStream);
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
       });
 
       res.json({ url: result.secure_url });
     } catch (error) {
       console.error("Error subiendo a Cloudinary:", error);
-      res.status(500).json({ error: "Error al subir imagen a la nube" });
+      res.status(500).json({ error: "Error al subir archivo a la nube" });
     }
   });
 

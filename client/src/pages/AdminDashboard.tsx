@@ -10,7 +10,7 @@ import {
 import { 
   Loader2, LogOut, Trash2, CheckCircle, XCircle, RefreshCw, 
   MessageSquare, Star, Plus, Image as ImageIcon, ExternalLink, Upload, Pencil, Ban,
-  Building2, Shield, Users, Calendar, Eye, EyeOff, Filter
+  Building2, Shield, Filter, EyeOff, LayoutDashboard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ContactMessage, Testimonial, GalleryImage } from "@shared/schema";
@@ -25,13 +25,20 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   
-  // --- ESTADOS DE EDICIÓN Y FORMULARIOS ---
+  const ALBUM_CATEGORIES = [
+    "Vida Saludable",
+    "Actividades Educativas",
+    "Infraestructura",
+    "Eventos y Celebraciones",
+    "Talleres y Arte",
+    "Salidas Pedagógicas"
+  ];
   
-  // Estado del Formulario Testimonios (Incluye avatar_url para guardar la foto vieja si no se sube nueva)
+  // --- ESTADOS DE EDICIÓN Y FORMULARIOS ---
   const [testimonialForm, setTestimonialForm] = useState({ 
     name: "", role: "Apoderado", content: "", rating: 5, avatar_url: "" 
   });
-  const [editingId, setEditingId] = useState<number | null>(null); // ID del testimonio que estamos editando
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [selectedTestimonialFile, setSelectedTestimonialFile] = useState<File | null>(null);
   const testimonialFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +50,11 @@ export default function AdminDashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  const isVideo = (url: string) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov)$/i);
+  };
 
   // --- CARGA DE DATOS ---
   const fetchData = async () => {
@@ -64,7 +76,6 @@ export default function AdminDashboard() {
       setTestimonials(testimonialsData);
       setGalleryImages(galleryData);
       
-      // Calcular mensajes no leídos
       const unread = messagesData.filter((msg: ContactMessage) => msg.status === 'new').length;
       setUnreadCount(unread);
       
@@ -112,8 +123,8 @@ export default function AdminDashboard() {
     });
     fetchData(); 
     toast({ 
-      title: newStatus === "read" ? "Mensaje marcado como leído" : "Mensaje marcado como nuevo",
-      description: "El estado ha sido actualizado"
+      title: newStatus === "read" ? "Mensaje leído" : "Mensaje marcado como nuevo",
+      className: "bg-indigo-50 border-indigo-200 text-indigo-800"
     });
   };
 
@@ -124,33 +135,23 @@ export default function AdminDashboard() {
       await fetch(`/api/admin/messages/${id}`, { method: "DELETE" });
       setMessages(messages.filter(m => m.id !== id));
       
-      // Actualizar contador de no leídos
       const messageToDelete = messages.find(m => m.id === id);
       if (messageToDelete?.status === 'new') {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-      
-      toast({ 
-        title: "Mensaje eliminado",
-        description: "El mensaje ha sido eliminado correctamente"
-      });
+      toast({ title: "Mensaje eliminado", className: "bg-rose-50 border-rose-200 text-rose-800" });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el mensaje",
-        variant: "destructive"
-      });
+      toast({ title: "Error", variant: "destructive" });
     }
   };
 
-  // --- LOGICA TESTIMONIOS (CREAR Y EDITAR) ---
-
+  // --- LOGICA TESTIMONIOS ---
   const startEditing = (t: Testimonial) => {
     setTestimonialForm({
       name: t.name,
       role: t.role,
       content: t.content,
-      rating: t.rating ?? 0,
+      rating: 5,
       avatar_url: t.avatar_url || ""
     });
     setEditingId(t.id);
@@ -182,7 +183,7 @@ export default function AdminDashboard() {
         finalAvatarUrl = url;
       }
 
-      const payload = { ...testimonialForm, avatar_url: finalAvatarUrl || null };
+      const payload = { ...testimonialForm, rating: 5, avatar_url: finalAvatarUrl || null };
       
       let res;
       if (editingId) {
@@ -201,21 +202,14 @@ export default function AdminDashboard() {
       
       if (res.ok) {
         toast({ 
-          title: editingId ? "¡Testimonio Actualizado!" : "¡Testimonio Creado!",
-          description: editingId 
-            ? "Los cambios se han guardado correctamente"
-            : "Nuevo testimonio agregado a la página web"
+          title: editingId ? "Actualizado correctamente" : "Testimonio creado",
+          className: "bg-emerald-50 border-emerald-200 text-emerald-800"
         });
         cancelEditing();
         fetchData();
       }
     } catch (error) {
-      console.error(error);
-      toast({ 
-        variant: "destructive", 
-        title: "Ocurrió un error",
-        description: "Por favor, intente nuevamente"
-      });
+      toast({ variant: "destructive", title: "Ocurrió un error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -223,21 +217,13 @@ export default function AdminDashboard() {
 
   const deleteTestimonial = async (id: number) => {
     if (!confirm("¿Está segura de que desea eliminar este testimonio?")) return;
-    
     try {
       await fetch(`/api/admin/testimonials/${id}`, { method: "DELETE" });
       setTestimonials(testimonials.filter(t => t.id !== id));
-      toast({ 
-        title: "Testimonio eliminado",
-        description: "El testimonio ha sido eliminado de la página web"
-      });
+      toast({ title: "Testimonio eliminado" });
       if (editingId === id) cancelEditing();
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo eliminar el testimonio"
-      });
+      toast({ variant: "destructive", title: "Error" });
     }
   };
 
@@ -245,11 +231,7 @@ export default function AdminDashboard() {
   const handleCreateImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedGalleryFile) {
-      toast({ 
-        variant: "destructive", 
-        title: "Imagen requerida",
-        description: "Debes seleccionar una imagen para subir"
-      });
+      toast({ variant: "destructive", title: "Falta el archivo", description: "Seleccione una imagen o video" });
       return;
     }
     setIsSubmitting(true);
@@ -257,6 +239,7 @@ export default function AdminDashboard() {
       const formData = new FormData();
       formData.append("image", selectedGalleryFile);
       const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      
       if (!uploadRes.ok) throw new Error("Fallo la subida");
       const { url } = await uploadRes.json();
 
@@ -271,296 +254,203 @@ export default function AdminDashboard() {
         }),
       });
       if (res.ok) {
-        toast({ 
-          title: "¡Imagen Subida!",
-          description: "La imagen se ha agregado a la galería"
-        });
+        toast({ title: "Archivo subido a la galería", className: "bg-violet-50 border-violet-200 text-violet-800" });
         setNewImageMeta({ title: "", description: "" });
         setSelectedGalleryFile(null);
         if (galleryFileInputRef.current) galleryFileInputRef.current.value = "";
         fetchData();
       }
     } catch (error) {
-      toast({ 
-        variant: "destructive", 
-        title: "Error al subir",
-        description: "No se pudo subir la imagen. Verifique el formato"
-      });
+      toast({ variant: "destructive", title: "Error al subir", description: "Verifique el tamaño del archivo" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const deleteImage = async (id: number) => {
-    if (!confirm("¿Está segura de que desea eliminar esta imagen de la galería?")) return;
-    
+    if (!confirm("¿Está segura de que desea eliminar este archivo?")) return;
     try {
       await fetch(`/api/admin/gallery/${id}`, { method: "DELETE" });
       setGalleryImages(galleryImages.filter(img => img.id !== id));
-      toast({ 
-        title: "Imagen eliminada",
-        description: "La imagen ha sido removida de la galería"
-      });
+      toast({ title: "Archivo eliminado" });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo eliminar la imagen"
-      });
+      toast({ variant: "destructive", title: "Error" });
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="p-6 bg-white rounded-2xl shadow-lg">
-            <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900">Cargando panel administrativo</h3>
-            <p className="text-gray-600">Por favor espere un momento...</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-rose-200/30 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-indigo-200/30 rounded-full blur-[100px] animate-pulse delay-700" />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="p-4 bg-white/50 backdrop-blur-xl rounded-full shadow-xl mb-4 ring-1 ring-white/50">
+            <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
           </div>
+          <p className="text-slate-600 font-medium animate-pulse">Cargando panel...</p>
         </div>
       </div>
     );
   }
 
+  // --- RENDERIZADO PRINCIPAL ---
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-gray-100 p-4 md:p-8">
-      {/* Fondo decorativo sutil */}
+    <div className="min-h-screen bg-slate-50 relative font-sans text-slate-800 pb-20">
+      {/* Fondo Decorativo Estático (para no afectar rendimiento) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full blur-3xl opacity-50" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-100 rounded-full blur-3xl opacity-50" />
+        <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-rose-100/40 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-indigo-100/40 rounded-full blur-[120px]" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto space-y-8">
+      <div className="relative max-w-7xl mx-auto px-4 md:px-8 pt-8 space-y-8">
         
-        {/* Header mejorado */}
-        <Card className="shadow-lg border-0 overflow-hidden bg-linear-to-r from-white to-blue-50/50">
-          <div className="h-2 bg-linear-to-r from-blue-500 to-indigo-500" />
-          <div className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-linear-to-r from-blue-100 to-indigo-100 rounded-xl shadow-sm">
-                  <Building2 className="h-8 w-8 text-blue-600" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                    Panel de Administración
-                  </h1>
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                      <Shield className="h-3.5 w-3.5" />
-                      Área administrativa
-                    </span>
-                    <span className="text-gray-600 font-medium">
-                      Jardín Ayenhue
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={fetchData} 
-                  size="sm"
-                  className="border-gray-300 hover:bg-gray-50"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Actualizar
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  onClick={handleLogout} 
-                  size="sm"
-                  className="bg-linear-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 border-0"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Cerrar Sesión
-                </Button>
+        {/* HEADER: Diseño Glass limpio */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white/70 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl shadow-indigo-100/50 border border-white/50">
+          <div className="flex items-center gap-5">
+            <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl shadow-lg shadow-indigo-200 text-white">
+              <Building2 className="h-8 w-8" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Panel de Dirección</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-slate-500 font-medium text-sm">Sistema Activo · Jardín Ayenhue</span>
               </div>
             </div>
           </div>
-        </Card>
-
-        {/* Estadísticas rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-white shadow-md border-0 overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">Mensajes totales</p>
-                  <h3 className="text-2xl font-bold text-gray-900 mt-1">{messages.length}</h3>
-                </div>
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <MessageSquare className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-              {unreadCount > 0 && (
-                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">
-                  <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse" />
-                  {unreadCount} sin leer
-                </div>
-              )}
-            </CardContent>
-          </Card>
           
-          <Card className="bg-white shadow-md border-0 overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">Testimonios activos</p>
-                  <h3 className="text-2xl font-bold text-gray-900 mt-1">{testimonials.length}</h3>
-                </div>
-                <div className="p-3 bg-emerald-100 rounded-lg">
-                  <Star className="h-6 w-6 text-emerald-600" />
-                </div>
-              </div>
-              <div className="mt-3 text-sm text-gray-500">
-                Promedio: {(testimonials.reduce((acc, t) => acc + (t.rating || 0), 0) / (testimonials.length || 1)).toFixed(1)} ★
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white shadow-md border-0 overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 font-medium">Imágenes en galería</p>
-                  <h3 className="text-2xl font-bold text-gray-900 mt-1">{galleryImages.length}</h3>
-                </div>
-                <div className="p-3 bg-violet-100 rounded-lg">
-                  <ImageIcon className="h-6 w-6 text-violet-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={fetchData} className="rounded-xl hover:bg-slate-100 text-slate-600">
+              <RefreshCw className="h-5 w-5 mr-2" /> Actualizar
+            </Button>
+            <Button 
+              onClick={handleLogout} 
+              className="rounded-xl bg-white border border-rose-100 text-rose-600 hover:bg-rose-50 hover:text-rose-700 shadow-sm"
+            >
+              <LogOut className="h-5 w-5 mr-2" /> Salir
+            </Button>
+          </div>
         </div>
 
-        {/* Tabs mejorados */}
-        <Card className="shadow-md border-0 overflow-hidden">
-          <CardContent className="p-0">
-            <div className="flex border-b overflow-x-auto">
-              <button 
-                onClick={() => setActiveTab("messages")} 
-                className={`pb-3 px-6 font-medium flex items-center gap-3 whitespace-nowrap transition-all ${
-                  activeTab === "messages" 
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/50" 
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
+        {/* ESTADÍSTICAS: Tarjetas flotantes */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { title: "Mensajes", count: messages.length, icon: MessageSquare, color: "text-blue-600", bg: "bg-blue-50" },
+            { title: "Testimonios", count: testimonials.length, icon: Star, color: "text-amber-500", bg: "bg-amber-50" },
+            { title: "Galería", count: galleryImages.length, icon: ImageIcon, color: "text-purple-600", bg: "bg-purple-50" }
+          ].map((stat, idx) => (
+            <Card key={idx} className="border-0 shadow-lg shadow-slate-200/50 bg-white/80 backdrop-blur-md rounded-3xl hover:-translate-y-1 transition-transform duration-300">
+              <CardContent className="p-6 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-500 font-medium text-sm mb-1">{stat.title}</p>
+                  <h3 className="text-3xl font-bold text-slate-800">{stat.count}</h3>
+                </div>
+                <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
+                  <stat.icon className="h-7 w-7" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* NAVEGACIÓN: Tabs tipo Cápsula */}
+        <div className="flex justify-center">
+          <div className="bg-white/60 backdrop-blur-md p-1.5 rounded-full shadow-md border border-white/50 inline-flex gap-1 overflow-x-auto max-w-full">
+            {[
+              { id: "messages", label: "Mensajes", icon: MessageSquare, count: unreadCount },
+              { id: "testimonials", label: "Testimonios", icon: Star, count: 0 },
+              { id: "gallery", label: "Galería", icon: ImageIcon, count: 0 }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`
+                  flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-300
+                  ${activeTab === tab.id 
+                    ? "bg-slate-800 text-white shadow-lg shadow-slate-200 transform scale-105" 
+                    : "text-slate-500 hover:bg-white hover:text-slate-700"}
+                `}
               >
-                <MessageSquare className="h-5 w-5" />
-                Mensajes
-                {unreadCount > 0 && (
-                  <span className="ml-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                    {unreadCount}
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+                {tab.count > 0 && (
+                  <span className="ml-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    {tab.count}
                   </span>
                 )}
               </button>
-              
-              <button 
-                onClick={() => setActiveTab("testimonials")} 
-                className={`pb-3 px-6 font-medium flex items-center gap-3 whitespace-nowrap transition-all ${
-                  activeTab === "testimonials" 
-                    ? "text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/50" 
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <Star className="h-5 w-5" />
-                Testimonios
-              </button>
-              
-              <button 
-                onClick={() => setActiveTab("gallery")} 
-                className={`pb-3 px-6 font-medium flex items-center gap-3 whitespace-nowrap transition-all ${
-                  activeTab === "gallery" 
-                    ? "text-violet-600 border-b-2 border-violet-600 bg-violet-50/50" 
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <ImageIcon className="h-5 w-5" />
-                Galería
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </div>
 
-        {/* --- PESTAÑA MENSAJES MEJORADA --- */}
-        {activeTab === "messages" && (
-          <Card className="shadow-lg border-0 overflow-hidden">
-            <CardHeader className="bg-linear-to-r from-white to-blue-50/50 border-b">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-xl font-bold text-gray-900">
-                  Bandeja de Entrada
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="border-gray-300">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filtrar
-                  </Button>
+        {/* CONTENIDO PRINCIPAL: Contenedor con transición */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          
+          {/* --- TAB: MENSAJES --- */}
+          {activeTab === "messages" && (
+            <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/80 backdrop-blur-xl rounded-[2rem] overflow-hidden">
+              <CardHeader className="border-b border-slate-100 bg-white/50 px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg"><MessageSquare className="h-5 w-5 text-blue-600"/></div>
+                    <CardTitle className="text-xl text-slate-800">Bandeja de Entrada</CardTitle>
+                  </div>
+                  <div className="text-sm text-slate-400 font-medium">
+                    {messages.length} mensajes recibidos
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
+              </CardHeader>
+              <CardContent className="p-0">
                 <Table>
-                  <TableHeader className="bg-gray-50">
-                    <TableRow>
-                      <TableHead className="font-semibold text-gray-700">Fecha</TableHead>
-                      <TableHead className="font-semibold text-gray-700">Remitente</TableHead>
-                      <TableHead className="font-semibold text-gray-700">Mensaje</TableHead>
-                      <TableHead className="font-semibold text-gray-700 text-right">Acciones</TableHead>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="border-b-slate-100 hover:bg-transparent">
+                      <TableHead className="pl-8 w-[180px]">Fecha</TableHead>
+                      <TableHead>Remitente</TableHead>
+                      <TableHead className="w-[40%]">Mensaje</TableHead>
+                      <TableHead className="text-right pr-8">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {messages.map((msg) => (
-                      <TableRow 
-                        key={msg.id} 
-                        className={`transition-colors hover:bg-gray-50 ${
-                          msg.status === 'new' ? "bg-blue-50/30 border-l-4 border-l-blue-500" : ""
-                        }`}
-                      >
-                        <TableCell className="whitespace-nowrap">
+                      <TableRow key={msg.id} className={`border-b-slate-50 transition-colors ${msg.status === 'new' ? 'bg-blue-50/30' : 'hover:bg-slate-50/50'}`}>
+                        <TableCell className="pl-8 py-4">
                           <div className="flex flex-col">
-                            <span className="font-medium">{new Date(msg.createdAt || "").toLocaleDateString()}</span>
-                            <span className="text-xs text-gray-500">
+                            <span className={`font-semibold text-sm ${msg.status === 'new' ? 'text-blue-700' : 'text-slate-600'}`}>
+                              {new Date(msg.createdAt || "").toLocaleDateString()}
+                            </span>
+                            <span className="text-xs text-slate-400">
                               {new Date(msg.createdAt || "").toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div>
-                            <div className="font-semibold text-gray-900">{msg.name}</div>
-                            <div className="text-sm text-gray-600">{msg.email}</div>
-                            {msg.phone && (
-                              <div className="text-xs text-gray-500 mt-1">📞 {msg.phone}</div>
-                            )}
+                            <div className="font-bold text-slate-800">{msg.name}</div>
+                            <div className="text-sm text-slate-500">{msg.email}</div>
+                            {msg.phone && <div className="text-xs text-slate-400 mt-1 flex items-center gap-1"><span className="opacity-50">📱</span> {msg.phone}</div>}
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-md">
-                          <div className="line-clamp-2 text-gray-700">{msg.message}</div>
-                        </TableCell>
                         <TableCell>
+                          <div className="text-slate-600 text-sm leading-relaxed line-clamp-2 max-w-prose">
+                            {msg.message}
+                          </div>
+                        </TableCell>
+                        <TableCell className="pr-8 text-right">
                           <div className="flex justify-end gap-2">
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => toggleStatus(msg.id, msg.status)}
-                              className="hover:bg-blue-100"
-                              title={msg.status === "new" ? "Marcar como leído" : "Marcar como no leído"}
+                              onClick={() => toggleStatus(msg.id, msg.status)} 
+                              className={`rounded-full ${msg.status === 'new' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'text-slate-400 hover:bg-slate-100'}`}
+                              title={msg.status === 'new' ? "Marcar como leído" : "Marcar como no leído"}
                             >
-                              {msg.status === "new" ? (
-                                <CheckCircle className="h-5 w-5 text-green-600" />
-                              ) : (
-                                <EyeOff className="h-5 w-5 text-gray-400" />
-                              )}
+                              {msg.status === "new" ? <CheckCircle className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                             </Button>
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => deleteMessage(msg.id)}
-                              className="hover:bg-red-100 text-red-400 hover:text-red-600"
-                              title="Eliminar mensaje"
+                              onClick={() => deleteMessage(msg.id)} 
+                              className="rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                             >
                               <Trash2 className="h-5 w-5" />
                             </Button>
@@ -570,484 +460,278 @@ export default function AdminDashboard() {
                     ))}
                     {messages.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-12">
-                          <div className="space-y-3">
-                            <MessageSquare className="h-12 w-12 text-gray-300 mx-auto" />
-                            <h3 className="text-lg font-semibold text-gray-500">
-                              No hay mensajes
-                            </h3>
-                            <p className="text-gray-400">
-                              Los mensajes enviados desde el sitio web aparecerán aquí
-                            </p>
+                        <TableCell colSpan={4} className="h-64 text-center">
+                          <div className="flex flex-col items-center justify-center text-slate-400">
+                            <MessageSquare className="h-12 w-12 mb-3 opacity-20" />
+                            <p>No hay mensajes nuevos</p>
                           </div>
                         </TableCell>
                       </TableRow>
                     )}
                   </TableBody>
                 </Table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          )}
 
-        {/* --- PESTAÑA TESTIMONIOS MEJORADA --- */}
-        {activeTab === "testimonials" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* FORMULARIO */}
-            <Card className="lg:col-span-1 h-fit shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-linear-to-r from-emerald-500 to-teal-500" />
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg font-bold text-gray-900">
-                    {editingId ? "✏️ Editar Testimonio" : "✨ Nuevo Testimonio"}
-                  </CardTitle>
-                  {editingId && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={cancelEditing}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <Ban className="h-4 w-4 mr-1"/>
-                      Cancelar
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmitTestimonial} className="space-y-5">
-                  {/* Avatar Input mejorado */}
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                      Foto / Logo (Opcional)
-                    </label>
-                    <div 
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center hover:bg-gray-50 transition-colors cursor-pointer relative"
-                      onClick={() => testimonialFileInputRef.current?.click()}
-                    >
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        ref={testimonialFileInputRef} 
-                        onChange={(e) => { 
-                          if (e.target.files && e.target.files[0]) setSelectedTestimonialFile(e.target.files[0]); 
-                        }} 
-                      />
-                      
-                      {selectedTestimonialFile ? (
-                        <div className="text-emerald-600 font-medium text-sm flex flex-col items-center">
-                          <CheckCircle className="h-8 w-8 mb-2 text-emerald-500" />
-                          Archivo seleccionado
-                          <span className="text-xs text-gray-500 mt-1">
-                            {selectedTestimonialFile.name}
-                          </span>
-                        </div>
-                      ) : testimonialForm.avatar_url ? (
-                        <div className="flex flex-col items-center">
-                          <img 
-                            src={testimonialForm.avatar_url} 
-                            alt="Actual" 
-                            className="w-20 h-20 rounded-full object-cover mb-3 border-2 border-white shadow-md" 
-                          />
-                          <span className="text-sm text-emerald-600 font-medium">
-                            Clic para cambiar foto
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 text-gray-400">
-                          <div className="p-3 bg-gray-100 rounded-full">
-                            <Upload className="h-6 w-6" />
+          {/* --- TAB: TESTIMONIOS --- */}
+          {activeTab === "testimonials" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Formulario Lateral */}
+              <div className="lg:col-span-4">
+                <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/90 backdrop-blur-xl rounded-[2rem] sticky top-8">
+                  <div className="h-2 w-full bg-gradient-to-r from-amber-400 to-orange-400" />
+                  <CardHeader className="pb-2 pt-6 px-6">
+                    <CardTitle className="text-lg font-bold text-slate-800 flex items-center justify-between">
+                      {editingId ? "Editar Testimonio" : "Nuevo Testimonio"}
+                      {editingId && <Button variant="ghost" size="sm" onClick={cancelEditing} className="h-8 text-rose-500 bg-rose-50 rounded-lg text-xs">Cancelar</Button>}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <form onSubmit={handleSubmitTestimonial} className="space-y-4">
+                      {/* Avatar Upload */}
+                      <div 
+                        className="group relative h-32 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50/50 transition-all"
+                        onClick={() => testimonialFileInputRef.current?.click()}
+                      >
+                        <input type="file" accept="image/*" className="hidden" ref={testimonialFileInputRef} onChange={(e) => { if (e.target.files && e.target.files[0]) setSelectedTestimonialFile(e.target.files[0]); }} />
+                        
+                        {selectedTestimonialFile ? (
+                          <div className="text-center p-2">
+                             <div className="mx-auto w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-2"><CheckCircle className="h-6 w-6 text-emerald-600" /></div>
+                             <p className="text-xs text-emerald-700 font-bold truncate max-w-[200px]">{selectedTestimonialFile.name}</p>
                           </div>
-                          <span className="text-sm font-medium">Clic para subir foto</span>
-                          <span className="text-xs">JPG, PNG (Máx. 5MB)</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                        ) : testimonialForm.avatar_url ? (
+                          <div className="relative w-full h-full p-2">
+                            <img src={testimonialForm.avatar_url} className="w-full h-full object-contain rounded-xl opacity-80 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 text-white font-medium opacity-0 group-hover:opacity-100 rounded-xl transition-opacity">Cambiar</div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-slate-400 group-hover:text-amber-500">
+                            <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <span className="text-xs font-semibold">Subir Foto / Logo</span>
+                          </div>
+                        )}
+                      </div>
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
-                        Nombre completo *
-                      </label>
                       <Input 
-                        placeholder="Ej: María González" 
+                        placeholder="Nombre Completo" 
                         value={testimonialForm.name} 
                         onChange={(e) => setTestimonialForm({...testimonialForm, name: e.target.value})} 
+                        className="bg-slate-50 border-transparent focus:bg-white focus:border-amber-400 h-11 rounded-xl"
                         required 
-                        className="h-11"
                       />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
-                        Rol / Relación *
-                      </label>
                       <Input 
-                        placeholder="Apoderado, Ex-alumno, Docente..." 
+                        placeholder="Rol (ej: Apoderada Sala Cuna)" 
                         value={testimonialForm.role} 
                         onChange={(e) => setTestimonialForm({...testimonialForm, role: e.target.value})} 
+                        className="bg-slate-50 border-transparent focus:bg-white focus:border-amber-400 h-11 rounded-xl"
                         required 
-                        className="h-11"
                       />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
-                        Testimonio *
-                      </label>
                       <Textarea 
-                        placeholder="Comparta su experiencia con el jardín infantil..." 
+                        placeholder="Escriba aquí la experiencia..." 
                         value={testimonialForm.content} 
                         onChange={(e) => setTestimonialForm({...testimonialForm, content: e.target.value})} 
-                        required 
+                        className="bg-slate-50 border-transparent focus:bg-white focus:border-amber-400 resize-none rounded-xl"
                         rows={4}
-                        className="resize-none"
+                        required 
                       />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
-                        Calificación (1-5 estrellas)
-                      </label>
-                      <div className="flex items-center gap-4">
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              type="button"
-                              onClick={() => setTestimonialForm({...testimonialForm, rating: star})}
-                              className={`text-2xl ${star <= testimonialForm.rating ? 'text-yellow-500' : 'text-gray-300'}`}
-                            >
-                              ★
-                            </button>
-                          ))}
-                        </div>
-                        <Input 
-                          type="number" 
-                          min="1" 
-                          max="5" 
-                          className="w-20 h-10" 
-                          value={testimonialForm.rating} 
-                          onChange={(e) => setTestimonialForm({...testimonialForm, rating: parseInt(e.target.value)})} 
-                          required 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl shadow-md"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                        {editingId ? "Guardando cambios..." : "Creando testimonio..."}
-                      </>
-                    ) : editingId ? (
-                      "💾 Guardar Cambios"
-                    ) : (
-                      "⭐ Agregar Testimonio"
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-            
-            {/* LISTA DE TESTIMONIOS */}
-            <Card className="lg:col-span-2 shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-linear-to-r from-amber-500 to-orange-500" />
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-xl font-bold text-gray-900">
-                    Testimonios Publicados ({testimonials.length})
-                  </CardTitle>
-                  <div className="text-sm text-gray-500">
-                    Promedio: {(testimonials.reduce((acc, t) => acc + (t.rating || 0), 0) / (testimonials.length || 1)).toFixed(1)} ★
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {testimonials.map((t) => (
-                    <div 
-                      key={t.id} 
-                      className={`flex justify-between p-5 border rounded-xl bg-white shadow-sm items-center transition-all hover:shadow-md ${
-                        editingId === t.id 
-                          ? 'border-emerald-500 ring-2 ring-emerald-100 bg-emerald-50/30' 
-                          : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start gap-4 flex-1">
-                        <div className="relative">
-                          <div className="w-14 h-14 rounded-full overflow-hidden bg-linear-to-r from-gray-100 to-gray-200 flex items-center justify-center shrink-0 border-2 border-white shadow">
-                            {t.avatar_url ? (
-                              <img src={t.avatar_url} alt={t.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <span className="text-xl font-bold text-gray-600">{t.name.charAt(0).toUpperCase()}</span>
-                            )}
-                          </div>
-                          {editingId === t.id && (
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
-                              <Pencil className="h-3 w-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-1">
-                            <h4 className="font-bold text-gray-900 text-lg">{t.name}</h4>
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                              {t.role}
-                            </span>
-                            <div className="text-yellow-500 text-sm ml-auto">
-                              {"★".repeat(t.rating ?? 0)}
-                            </div>
-                          </div>
-                          <p className="text-gray-700 italic leading-relaxed mb-2">"{t.content}"</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>ID: {t.id}</span>
-                            {t.createdAt && (
-                              <span>📅 {new Date(t.createdAt).toLocaleDateString()}</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
                       
-                      <div className="flex gap-2 ml-4 shrink-0">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => startEditing(t)}
-                          className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-full"
-                          title="Editar testimonio"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => deleteTestimonial(t.id)}
-                          className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-full"
-                          title="Eliminar testimonio"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {testimonials.length === 0 && (
-                    <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-2xl">
-                      <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-500 mb-2">
-                        No hay testimonios aún
-                      </h3>
-                      <p className="text-gray-400 max-w-md mx-auto">
-                        Los testimonios agregados aparecerán en la página principal del jardín
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold shadow-lg shadow-amber-200"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? <Loader2 className="animate-spin" /> : editingId ? "Guardar Cambios" : "Publicar Testimonio"}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
 
-        {/* --- PESTAÑA GALERIA MEJORADA --- */}
-        {activeTab === "gallery" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <Card className="lg:col-span-1 h-fit shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-linear-to-r from-violet-500 to-purple-500" />
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-bold text-gray-900">
-                  📤 Subir Nueva Foto
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleCreateImage} className="space-y-5">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                      Seleccionar imagen *
-                    </label>
-                    <div 
-                      className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer"
-                      onClick={() => galleryFileInputRef.current?.click()}
-                    >
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        ref={galleryFileInputRef} 
-                        onChange={(e) => { 
-                          if (e.target.files && e.target.files[0]) setSelectedGalleryFile(e.target.files[0]); 
-                        }} 
-                      />
-                      <div className="flex flex-col items-center gap-3">
-                        {selectedGalleryFile ? (
-                          <>
-                            <CheckCircle className="h-10 w-10 text-emerald-500" />
-                            <div>
-                              <span className="text-emerald-600 font-medium">{selectedGalleryFile.name}</span>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {(selectedGalleryFile.size / (1024 * 1024)).toFixed(2)} MB
-                              </p>
-                            </div>
-                            <span className="text-sm text-gray-400">Clic para cambiar</span>
-                          </>
+              {/* Lista de Testimonios */}
+              <div className="lg:col-span-8 space-y-4">
+                {testimonials.map((t) => (
+                  <div 
+                    key={t.id} 
+                    className={`
+                      relative flex gap-5 p-6 rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-300
+                      ${editingId === t.id ? 'ring-2 ring-amber-400 scale-[1.02] shadow-lg' : 'hover:shadow-md'}
+                    `}
+                  >
+                    <div className="shrink-0">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 ring-4 ring-white shadow-md">
+                        {t.avatar_url ? (
+                          <img src={t.avatar_url} className="w-full h-full object-cover" />
                         ) : (
-                          <>
-                            <div className="p-3 bg-violet-100 rounded-full">
-                              <Upload className="h-8 w-8 text-violet-600" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-500">
-                              Clic para seleccionar imagen
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              JPG, PNG, WEBP (Máx. 10MB)
-                            </span>
-                          </>
+                          <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold text-xl">
+                            {t.name.charAt(0)}
+                          </div>
                         )}
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
-                        Título (Opcional)
-                      </label>
-                      <Input 
-                        placeholder="Ej: Día del niño 2024" 
-                        value={newImageMeta.title} 
-                        onChange={(e) => setNewImageMeta({...newImageMeta, title: e.target.value})} 
-                        className="h-11"
-                      />
-                    </div>
                     
-                    <div>
-                      <label className="text-sm font-semibold text-gray-700 mb-1.5 block">
-                        Descripción (Opcional)
-                      </label>
-                      <Input 
-                        placeholder="Ej: Actividades del día del niño" 
-                        value={newImageMeta.description} 
-                        onChange={(e) => setNewImageMeta({...newImageMeta, description: e.target.value})} 
-                        className="h-11"
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-linear-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white font-semibold rounded-xl shadow-md"
-                    disabled={isSubmitting || !selectedGalleryFile}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                        Subiendo...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="h-5 w-5 mr-2" />
-                        Subir a la Galería
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-            
-            <Card className="lg:col-span-2 shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-linear-to-r from-pink-500 to-rose-500" />
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-xl font-bold text-gray-900">
-                    Galería de Imágenes ({galleryImages.length})
-                  </CardTitle>
-                  <div className="text-sm text-gray-500">
-                    {galleryImages.length} fotos en total
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {galleryImages.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {galleryImages.map((img) => (
-                      <div 
-                        key={img.id} 
-                        className="group relative aspect-square rounded-xl overflow-hidden border-2 border-white shadow-lg bg-gray-100"
-                      >
-                        <img 
-                          src={img.url} 
-                          alt={img.title || "Imagen de galería"} 
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                          <div className="text-white">
-                            {img.title && (
-                              <h4 className="font-bold text-lg mb-1">{img.title}</h4>
-                            )}
-                            {img.description && (
-                              <p className="text-sm text-gray-200 line-clamp-2">{img.description}</p>
-                            )}
-                          </div>
-                          <div className="flex justify-center gap-3 mt-4">
-                            <a 
-                              href={img.url} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="p-2 bg-white rounded-full text-gray-800 hover:bg-gray-100 transition-colors"
-                              title="Ver imagen completa"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                            <button 
-                              onClick={() => deleteImage(img.id)} 
-                              className="p-2 bg-linear-to-r from-red-500 to-rose-500 rounded-full text-white hover:from-red-600 hover:to-rose-600 transition-colors"
-                              title="Eliminar imagen"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-slate-800 text-lg">{t.name}</h4>
+                          <span className="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                            {t.role}
+                          </span>
                         </div>
-                        
-                        {/* Badge de información */}
-                        <div className="absolute top-3 left-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                          #{img.id}
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => startEditing(t)} className="h-8 w-8 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-full"><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => deleteTestimonial(t.id)} className="h-8 w-8 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full"><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </div>
-                    ))}
+                      <div className="mt-3 relative">
+                        <span className="absolute -left-2 -top-2 text-4xl text-slate-200 font-serif leading-none">“</span>
+                        <p className="text-slate-600 leading-relaxed italic relative z-10">{t.content}</p>
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-16 border-2 border-dashed border-gray-300 rounded-2xl">
-                    <ImageIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-500 mb-2">
-                      Galería vacía
-                    </h3>
-                    <p className="text-gray-400 max-w-md mx-auto">
-                      Suba imágenes para mostrar en la galería pública del jardín
-                    </p>
-                  </div>
+                ))}
+                {testimonials.length === 0 && (
+                   <div className="text-center py-20 bg-white/40 rounded-[2rem] border border-dashed border-slate-300">
+                     <Star className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+                     <p className="text-slate-500">Aún no hay testimonios publicados</p>
+                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+              </div>
+            </div>
+          )}
 
-      {/* Footer */}
-      <div className="mt-12 pt-6 border-t border-gray-200 text-center">
-        <p className="text-sm text-gray-500">
-          © {new Date().getFullYear()} Jardín Ayenhue • Panel Administrativo v2.0
-          <br />
-          <span className="text-xs text-gray-400">
-            Acceso restringido al personal autorizado • Última actualización: {new Date().toLocaleDateString()}
-          </span>
-        </p>
+          {/* --- TAB: GALERIA --- */}
+          {activeTab === "gallery" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Upload Zone */}
+              <div className="lg:col-span-4">
+                 <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/90 backdrop-blur-xl rounded-[2rem] sticky top-8">
+                  <div className="h-2 w-full bg-gradient-to-r from-purple-400 to-indigo-500" />
+                  <CardHeader className="pt-6 px-6 pb-2">
+                    <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-purple-500"/> Subir Multimedia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <form onSubmit={handleCreateImage} className="space-y-5">
+                      {/* Dropzone */}
+                      <div 
+                        className={`
+                          border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer group
+                          ${selectedGalleryFile 
+                            ? 'border-purple-500 bg-purple-50/30' 
+                            : 'border-slate-200 hover:border-purple-400 hover:bg-purple-50/20'}
+                        `}
+                        onClick={() => galleryFileInputRef.current?.click()}
+                      >
+                         <input type="file" accept="image/*,video/*" className="hidden" ref={galleryFileInputRef} onChange={(e) => { if (e.target.files && e.target.files[0]) setSelectedGalleryFile(e.target.files[0]); }} />
+                         
+                         {selectedGalleryFile ? (
+                           <div>
+                             <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                               <CheckCircle className="h-6 w-6"/>
+                             </div>
+                             <p className="font-bold text-purple-700 text-sm truncate">{selectedGalleryFile.name}</p>
+                           </div>
+                         ) : (
+                           <div>
+                             <div className="w-12 h-12 bg-slate-100 text-slate-400 group-hover:bg-purple-100 group-hover:text-purple-500 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors">
+                               <Plus className="h-6 w-6"/>
+                             </div>
+                             <p className="font-medium text-slate-600">Clic para seleccionar</p>
+                             <p className="text-xs text-slate-400 mt-1">Foto o Video MP4</p>
+                           </div>
+                         )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Álbum / Categoría</label>
+                        <select 
+                          className="w-full h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-100 text-sm"
+                          value={newImageMeta.title} 
+                          onChange={(e) => setNewImageMeta({...newImageMeta, title: e.target.value})} 
+                          required
+                        >
+                          <option value="" disabled>Seleccione una opción...</option>
+                          {ALBUM_CATEGORIES.map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
+                          <option value="Otros">Otros</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Descripción</label>
+                        <Input 
+                          placeholder="Ej: Actividad de Fiestas Patrias" 
+                          value={newImageMeta.description} 
+                          onChange={(e) => setNewImageMeta({...newImageMeta, description: e.target.value})} 
+                          className="bg-slate-50 border-transparent focus:bg-white focus:border-purple-500 h-11 rounded-xl"
+                        />
+                      </div>
+                      
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold shadow-lg shadow-purple-200"
+                        disabled={isSubmitting || !selectedGalleryFile || !newImageMeta.title}
+                      >
+                        {isSubmitting ? <Loader2 className="animate-spin" /> : "Subir Archivo"}
+                      </Button>
+                    </form>
+                  </CardContent>
+                 </Card>
+              </div>
+
+              {/* Gallery Grid */}
+              <div className="lg:col-span-8">
+                <Card className="border-0 bg-white/60 backdrop-blur-md rounded-[2rem] p-6 min-h-[500px]">
+                  {galleryImages.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {galleryImages.map((img) => (
+                        <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                          {isVideo(img.url) ? (
+                            <video src={img.url} className="w-full h-full object-cover" muted loop onMouseOver={e => e.currentTarget.play()} onMouseOut={e => e.currentTarget.pause()} />
+                          ) : (
+                            <img src={img.url} alt={img.title || "Imagen"} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                          )}
+                          
+                          {/* Overlay on Hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                             <div className="flex justify-between items-end">
+                                <div>
+                                  <span className="text-[10px] font-bold text-white bg-white/20 backdrop-blur-md px-2 py-1 rounded-full uppercase tracking-wider">
+                                    {img.title || "General"}
+                                  </span>
+                                </div>
+                                <Button 
+                                  variant="destructive" 
+                                  size="icon" 
+                                  className="h-8 w-8 rounded-full shadow-lg" 
+                                  onClick={() => deleteImage(img.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                             </div>
+                          </div>
+                          
+                          {isVideo(img.url) && (
+                            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded-md text-xs font-bold backdrop-blur-sm pointer-events-none">
+                              VIDEO
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
+                      <ImageIcon className="h-20 w-20 mb-4 stroke-1" />
+                      <p className="text-lg">La galería está vacía</p>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

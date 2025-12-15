@@ -87,14 +87,8 @@ export default function Testimonials() {
                     {testimonial.role}
                   </span>
                   
-                  {/* Estrellas */}
-                  {testimonial.rating && (
-                    <div className="flex justify-center mt-2 gap-1">
-                      {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <span key={i} className="text-yellow-400 text-xs">★</span>
-                      ))}
-                    </div>
-                  )}
+                  {/* AQUÍ SE HAN ELIMINADO LAS ESTRELLAS */}
+                  
                 </div>
               </CardContent>
             </Card>

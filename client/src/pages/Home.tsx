@@ -13,6 +13,9 @@ import Gallery from "@/components/landing/Gallery";
 import Social from "@/components/landing/Social";
 import CTA from "@/components/landing/CTA";
 import Contact from "@/components/landing/Contact";
+import MissionVision from "@/components/landing/MissionVision";
+import SealsSection from "@/components/landing/SealsSection";
+import ValuesSection from "@/components/landing/ValuesSection";
 
 export default function Home() {
   return (
@@ -20,7 +23,10 @@ export default function Home() {
       <Navbar />
       <main className="grow bg-linear-to-b">
         <Hero />
+        <MissionVision />
         <About />
+        <SealsSection />
+        <ValuesSection />
         <IsForYou />
         <History />
         <Services />
