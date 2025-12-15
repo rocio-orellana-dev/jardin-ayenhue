@@ -6,115 +6,105 @@ import rateLimit from "express-rate-limit";
 import session from "express-session";
 import helmet from "helmet";
 import { insertContactMessageSchema, insertTestimonialSchema, insertGalleryImageSchema } from "@shared/schema";
-// --- NUEVOS IMPORTS PARA SUBIDA DE ARCHIVOS ---
+// --- IMPORTS PARA CLOUDINARY ---
 import multer from "multer";
-import path from "path";
-import fs from "fs";
-import express from "express";
+import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 
-// Rate limiter
+// 1. CONFIGURACIÓN DE CLOUDINARY
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// 2. CONFIGURACIÓN DE MULTER (Memoria para subir a la nube)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // Límite de 5MB
+});
+
+// Rate limiters
 const contactLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: 15 * 60 * 1000, max: 5,
   message: { error: "Demasiados mensajes enviados. Por favor intenta más tarde." },
-  standardHeaders: true,
-  legacyHeaders: false,
+  standardHeaders: true, legacyHeaders: false,
 });
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 15 * 60 * 1000, max: 10,
   message: { error: "Demasiados intentos. Intenta más tarde." },
 });
 
 // Session types
 declare module "express-session" {
-  interface SessionData {
-    isAdmin: boolean;
-  }
+  interface SessionData { isAdmin: boolean; }
 }
 
 // Auth middleware
 function requireAdmin(req: Request, res: Response, next: Function) {
-  if (!req.session.isAdmin) {
-    return res.status(401).json({ error: "No autorizado" });
-  }
+  if (!req.session.isAdmin) return res.status(401).json({ error: "No autorizado" });
   next();
 }
 
-export async function registerRoutes(
-  app: Express,
-  httpServer: Server
-): Promise<Server> {
+export async function registerRoutes(app: Express, httpServer: Server): Promise<Server> {
 
-  // --- CONFIGURACIÓN DE SUBIDA DE IMÁGENES (MULTER) ---
-  const uploadDir = path.join(process.cwd(), "uploads");
-  
-  // Crear carpeta 'uploads' si no existe
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-  }
+  // --- 1. CRUCIAL PARA RENDER: CONFÍA EN EL PROXY ---
+  app.set("trust proxy", 1);
 
-  // Configurar dónde y cómo se guardan los archivos
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: uploadDir,
-      filename: (req, file, cb) => {
-        // Generamos un nombre único: fecha-random.extension
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-      }
-    }),
-    limits: { fileSize: 5 * 1024 * 1024 } // Límite de 5MB
-  });
+  // Seguridad
+  app.use(helmet({ contentSecurityPolicy: false }));
 
-  // Habilitar que la carpeta uploads sea pública (para ver las fotos en el navegador)
-  app.use("/uploads", express.static(uploadDir));
-
-  // Middleware de Seguridad
-  app.use(helmet({
-    contentSecurityPolicy: false,
-  }));
-
+  // Sesiones
   app.use(session({
     secret: process.env.SESSION_SECRET || "dev-secret-key",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // Solo seguro en producción
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hrs
+      sameSite: 'lax',
     },
   }));
 
-  // --- RUTA NUEVA: SUBIR ARCHIVO ---
-  app.post("/api/upload", upload.single("image"), (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ error: "No se subió ningún archivo" });
+  // --- RUTA DE SUBIDA (HACIA CLOUDINARY) ---
+  app.post("/api/upload", upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: "No se subió archivo" });
+
+      const result: any = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "jardin_ayenhue" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+      });
+
+      res.json({ url: result.secure_url });
+    } catch (error) {
+      console.error("Error subiendo a Cloudinary:", error);
+      res.status(500).json({ error: "Error al subir imagen a la nube" });
     }
-    // Devolvemos la URL pública
-    const imageUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: imageUrl });
   });
 
-  // --- PUBLIC ROUTES ---
+  // --- RUTAS PÚBLICAS ---
 
   app.get("/api/testimonials", async (_req, res) => {
     try {
       const testimonials = await storage.getActiveTestimonials();
       res.json(testimonials);
-    } catch (error) {
-      res.status(500).json({ error: "Error interno" });
-    }
+    } catch (error) { res.status(500).json({ error: "Error interno" }); }
   });
 
   app.get("/api/gallery", async (_req, res) => {
     try {
       const images = await storage.getActiveGalleryImages();
       res.json(images);
-    } catch (error) {
-      res.status(500).json({ error: "Error interno" });
-    }
+    } catch (error) { res.status(500).json({ error: "Error interno" }); }
   });
 
   app.post("/api/contact", contactLimiter, [
@@ -130,25 +120,17 @@ export async function registerRoutes(
       if (req.body.honeypot) return res.status(400).json({ error: "Spam" });
 
       try {
-        const validated = insertContactMessageSchema.parse({
-          ...req.body,
-          status: "new",
-          ip: req.ip
-        });
+        const validated = insertContactMessageSchema.parse({ ...req.body, status: "new", ip: req.ip });
         await storage.createContactMessage(validated);
         res.status(201).json({ success: true, message: "Mensaje enviado" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error al guardar mensaje" });
-      }
+      } catch (error) { res.status(500).json({ error: "Error al guardar mensaje" }); }
     }
   );
 
-  // --- ADMIN AUTH ---
+  // --- RUTAS DE ADMIN ---
 
   app.post("/api/admin/login", loginLimiter, async (req, res) => {
     const { password } = req.body;
-    // NOTA: Asegúrate de tener ADMIN_PASSWORD en tus variables de entorno (.env)
     if (password === process.env.ADMIN_PASSWORD) {
       req.session.isAdmin = true;
       res.json({ success: true });
@@ -165,64 +147,53 @@ export async function registerRoutes(
     res.json({ isAdmin: !!req.session.isAdmin });
   });
 
-  // --- ADMIN DATA ROUTES ---
-
-  // Mensajes
+  // CRUD Mensajes
   app.get("/api/admin/messages", requireAdmin, async (_req, res) => {
     const msgs = await storage.getContactMessages();
     res.json(msgs);
   });
-
   app.patch("/api/admin/messages/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id);
-    const updated = await storage.updateContactMessageStatus(id, req.body.status);
+    const updated = await storage.updateContactMessageStatus(parseInt(req.params.id), req.body.status);
     res.json(updated);
   });
-
   app.delete("/api/admin/messages/:id", requireAdmin, async (req, res) => {
     await storage.deleteContactMessage(parseInt(req.params.id));
     res.json({ success: true });
   });
 
-  // Testimonios
+  // CRUD Testimonios
   app.get("/api/admin/testimonials", requireAdmin, async (_req, res) => {
     const data = await storage.getAllTestimonials();
     res.json(data);
   });
-
   app.post("/api/admin/testimonials", requireAdmin, async (req, res) => {
     const validated = insertTestimonialSchema.parse(req.body);
     const created = await storage.createTestimonial(validated);
     res.status(201).json(created);
   });
-
   app.patch("/api/admin/testimonials/:id", requireAdmin, async (req, res) => {
     const updated = await storage.updateTestimonial(parseInt(req.params.id), req.body);
     res.json(updated);
   });
-
   app.delete("/api/admin/testimonials/:id", requireAdmin, async (req, res) => {
     await storage.deleteTestimonial(parseInt(req.params.id));
     res.json({ success: true });
   });
 
-  // Galería
+  // CRUD Galería
   app.get("/api/admin/gallery", requireAdmin, async (_req, res) => {
     const data = await storage.getAllGalleryImages();
     res.json(data);
   });
-
   app.post("/api/admin/gallery", requireAdmin, async (req, res) => {
     const validated = insertGalleryImageSchema.parse(req.body);
     const created = await storage.createGalleryImage(validated);
     res.status(201).json(created);
   });
-
   app.patch("/api/admin/gallery/:id", requireAdmin, async (req, res) => {
     const updated = await storage.updateGalleryImage(parseInt(req.params.id), req.body);
     res.json(updated);
   });
-
   app.delete("/api/admin/gallery/:id", requireAdmin, async (req, res) => {
     await storage.deleteGalleryImage(parseInt(req.params.id));
     res.json({ success: true });
