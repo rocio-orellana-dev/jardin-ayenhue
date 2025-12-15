@@ -16,8 +16,8 @@ export default function Hero() {
           className="w-full h-full object-cover animate-in fade-in duration-1000 scale-105"
         />
         {/* Dynamic Blue Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-primary/20 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-primary/95 via-primary/70 to-primary/20 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-primary/40 to-transparent"></div>
       </div>
 
       {/* Content */}

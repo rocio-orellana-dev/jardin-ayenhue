@@ -50,7 +50,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-emerald-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-sky-50 to-emerald-50 p-4">
       {/* Fondo decorativo */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-sky-100 rounded-full blur-3xl opacity-70" />
@@ -61,12 +61,12 @@ export default function Login() {
         {/* Tarjeta principal */}
         <Card className="bg-white/95 backdrop-blur-sm border-slate-200 shadow-2xl shadow-sky-100/50 rounded-2xl overflow-hidden">
           {/* Encabezado con acento de color */}
-          <div className="h-2 bg-gradient-to-r from-sky-500 to-emerald-500" />
+          <div className="h-2 bg-linear-to-r from-sky-500 to-emerald-500" />
           
           <CardHeader className="pt-8 pb-6">
             <div className="flex flex-col items-center space-y-4">
               {/* Icono de institución */}
-              <div className="p-4 bg-gradient-to-br from-sky-100 to-emerald-100 rounded-2xl">
+              <div className="p-4 bg-linear-to-br from-sky-100 to-emerald-100 rounded-2xl">
                 <Building2 className="h-12 w-12 text-sky-600" />
               </div>
               
@@ -145,7 +145,7 @@ export default function Login() {
               {/* Botón de envío */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-sky-500 to-emerald-500 hover:from-sky-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg shadow-sky-200 hover:shadow-xl hover:shadow-sky-300 transition-all duration-300 transform hover:-translate-y-0.5"
+                className="w-full h-12 bg-linear-to-r from-sky-500 to-emerald-500 hover:from-sky-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg shadow-sky-200 hover:shadow-xl hover:shadow-sky-300 transition-all duration-300 transform hover:-translate-y-0.5"
                 disabled={isLoading || password.length === 0}
               >
                 {isLoading ? (

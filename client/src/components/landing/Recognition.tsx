@@ -12,14 +12,14 @@ export default function Recognition() {
         <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-24">
           
           <div className="w-full md:w-1/3 flex justify-center md:justify-end order-1 md:order-2 animate-in slide-in-from-right-8 duration-1000">
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-[8px] border-white/10 shadow-2xl group cursor-default">
+            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-8 border-white/10 shadow-2xl group cursor-default">
               <img 
                 src={plaqueImage} 
                 alt="Sello de Reconocimiento Oficial" 
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
               />
               {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-black/40 to-transparent group-hover:opacity-80 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-linear-to-tr from-black/40 to-transparent group-hover:opacity-80 transition-opacity duration-500"></div>
             </div>
           </div>
 

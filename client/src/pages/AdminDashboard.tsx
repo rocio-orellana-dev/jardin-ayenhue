@@ -312,7 +312,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center space-y-6">
           <div className="p-6 bg-white rounded-2xl shadow-lg">
             <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
@@ -325,7 +325,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-gray-100 p-4 md:p-8">
       {/* Fondo decorativo sutil */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full blur-3xl opacity-50" />
@@ -335,12 +335,12 @@ export default function AdminDashboard() {
       <div className="relative max-w-7xl mx-auto space-y-8">
         
         {/* Header mejorado */}
-        <Card className="shadow-lg border-0 overflow-hidden bg-gradient-to-r from-white to-blue-50/50">
-          <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500" />
+        <Card className="shadow-lg border-0 overflow-hidden bg-linear-to-r from-white to-blue-50/50">
+          <div className="h-2 bg-linear-to-r from-blue-500 to-indigo-500" />
           <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl shadow-sm">
+                <div className="p-3 bg-linear-to-r from-blue-100 to-indigo-100 rounded-xl shadow-sm">
                   <Building2 className="h-8 w-8 text-blue-600" />
                 </div>
                 <div>
@@ -373,7 +373,7 @@ export default function AdminDashboard() {
                   variant="destructive" 
                   onClick={handleLogout} 
                   size="sm"
-                  className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 border-0"
+                  className="bg-linear-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 border-0"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Cerrar Sesión
@@ -488,7 +488,7 @@ export default function AdminDashboard() {
         {/* --- PESTAÑA MENSAJES MEJORADA --- */}
         {activeTab === "messages" && (
           <Card className="shadow-lg border-0 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-white to-blue-50/50 border-b">
+            <CardHeader className="bg-linear-to-r from-white to-blue-50/50 border-b">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xl font-bold text-gray-900">
                   Bandeja de Entrada
@@ -596,7 +596,7 @@ export default function AdminDashboard() {
             
             {/* FORMULARIO */}
             <Card className="lg:col-span-1 h-fit shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
+              <div className="h-2 bg-linear-to-r from-emerald-500 to-teal-500" />
               <CardHeader className="pb-4">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-lg font-bold text-gray-900">
@@ -740,7 +740,7 @@ export default function AdminDashboard() {
                   
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl shadow-md"
+                    className="w-full h-12 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl shadow-md"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
@@ -760,7 +760,7 @@ export default function AdminDashboard() {
             
             {/* LISTA DE TESTIMONIOS */}
             <Card className="lg:col-span-2 shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-gradient-to-r from-amber-500 to-orange-500" />
+              <div className="h-2 bg-linear-to-r from-amber-500 to-orange-500" />
               <CardHeader className="pb-4">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl font-bold text-gray-900">
@@ -784,7 +784,7 @@ export default function AdminDashboard() {
                     >
                       <div className="flex items-start gap-4 flex-1">
                         <div className="relative">
-                          <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shrink-0 border-2 border-white shadow">
+                          <div className="w-14 h-14 rounded-full overflow-hidden bg-linear-to-r from-gray-100 to-gray-200 flex items-center justify-center shrink-0 border-2 border-white shadow">
                             {t.avatar_url ? (
                               <img src={t.avatar_url} alt={t.name} className="w-full h-full object-cover" />
                             ) : (
@@ -860,7 +860,7 @@ export default function AdminDashboard() {
         {activeTab === "gallery" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <Card className="lg:col-span-1 h-fit shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-gradient-to-r from-violet-500 to-purple-500" />
+              <div className="h-2 bg-linear-to-r from-violet-500 to-purple-500" />
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-bold text-gray-900">
                   📤 Subir Nueva Foto
@@ -942,7 +942,7 @@ export default function AdminDashboard() {
                   
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white font-semibold rounded-xl shadow-md"
+                    className="w-full h-12 bg-linear-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white font-semibold rounded-xl shadow-md"
                     disabled={isSubmitting || !selectedGalleryFile}
                   >
                     {isSubmitting ? (
@@ -962,7 +962,7 @@ export default function AdminDashboard() {
             </Card>
             
             <Card className="lg:col-span-2 shadow-lg border-0 overflow-hidden">
-              <div className="h-2 bg-gradient-to-r from-pink-500 to-rose-500" />
+              <div className="h-2 bg-linear-to-r from-pink-500 to-rose-500" />
               <CardHeader className="pb-4">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl font-bold text-gray-900">
@@ -986,7 +986,7 @@ export default function AdminDashboard() {
                           alt={img.title || "Imagen de galería"} 
                           className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                        <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                           <div className="text-white">
                             {img.title && (
                               <h4 className="font-bold text-lg mb-1">{img.title}</h4>
@@ -1007,7 +1007,7 @@ export default function AdminDashboard() {
                             </a>
                             <button 
                               onClick={() => deleteImage(img.id)} 
-                              className="p-2 bg-gradient-to-r from-red-500 to-rose-500 rounded-full text-white hover:from-red-600 hover:to-rose-600 transition-colors"
+                              className="p-2 bg-linear-to-r from-red-500 to-rose-500 rounded-full text-white hover:from-red-600 hover:to-rose-600 transition-colors"
                               title="Eliminar imagen"
                             >
                               <Trash2 className="h-4 w-4" />

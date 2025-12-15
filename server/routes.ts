@@ -81,7 +81,7 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
             else resolve(result);
           }
         );
-        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        streamifier.createReadStream(req.file!.buffer).pipe(uploadStream);
       });
 
       res.json({ url: result.secure_url });
