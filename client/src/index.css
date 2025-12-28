@@ -75,13 +75,26 @@
 /* Smooth Wave Animation */
 @keyframes wave {
   0% { transform: translateX(0); }
-  50% { transform: translateX(-25%); }
-  100% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .animate-wave {
-  animation: wave 15s ease-in-out infinite;
+  animation: wave 12s linear infinite;
 }
+
+@keyframes wave {
+  0% { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-50%,0,0); }
+}
+
+/* ✅ en vez de animar "animate-wave", animamos el track */
+.wave-track {
+  width: 200%;
+  animation: wave 12s linear infinite;
+  will-change: transform;
+}
+
+
 
 @layer base {
   * {

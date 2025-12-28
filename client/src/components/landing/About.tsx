@@ -8,31 +8,46 @@ export default function About() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Image Side - Refined visual */}
-          <div className="relative order-2 lg:order-1">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-secondary/10 rounded-full blur-[100px] -z-10"></div>
-            
-            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl transition-transform duration-700 hover:scale-[1.01]">
-              <img
-                src={teacherImage}
-                alt="Educadora y niños en Jardín Ayenhue"
-                className="w-full h-full object-cover aspect-4/3"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-primary/20 to-transparent"></div>
-            </div>
-            
-            {/* Floating Badge */}
-            <div className="absolute -bottom-6 -right-6 md:bottom-10 md:-right-10 bg-white p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-20 max-w-[280px] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 border border-muted">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center text-accent-foreground">
-                  <Heart className="w-5 h-5 fill-current text-accent" />
-                </div>
-                <span className="font-bold text-primary text-sm uppercase tracking-wide">Nuestro Sello</span>
-              </div>
-              <p className="text-sm text-muted-foreground font-medium leading-tight">
-                "Educar con amor y respeto por la diversidad de cada familia."
-              </p>
-            </div>
+<div className="relative order-2 lg:order-1">
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-secondary/10 rounded-full blur-[100px] -z-10"></div>
+
+  {/* ✅ BLOQUE UNIFICADO: Imagen + Sello (acompaña borde redondeado) */}
+  <div className="rounded-[2.5rem] overflow-hidden shadow-2xl bg-white border border-muted/60">
+    {/* Imagen */}
+    <div className="relative">
+      <img
+        src={teacherImage}
+        alt="Educadora y niños en Jardín Ayenhue"
+        className="w-full h-full object-cover aspect-4/3 transition-transform duration-700 hover:scale-[1.01]"
+      />
+      <div className="absolute inset-0 bg-linear-to-t from-primary/20 to-transparent"></div>
+    </div>
+
+    {/* ✅ “Sello” pegado abajo (sin tapar la imagen) */}
+    <div className="p-5 md:p-6 bg-white">
+      <div className="flex items-start gap-4">
+        <div className="w-11 h-11 bg-accent/20 rounded-2xl flex items-center justify-center shrink-0">
+          <Heart className="w-5 h-5 fill-current text-accent" />
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-bold text-primary text-sm uppercase tracking-wide">
+              Nuestro Sello
+            </span>
+            {/* Línea sutil para “conectar” visualmente con la imagen */}
+            <span className="h-px flex-1 bg-muted/80 hidden sm:block"></span>
           </div>
+
+          <p className="mt-2 text-sm text-muted-foreground font-medium leading-snug">
+            “Educar con amor y respeto por la diversidad de cada familia.”
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
           {/* Text Side */}
           <div className="space-y-8 order-1 lg:order-2">

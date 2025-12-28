@@ -61,7 +61,7 @@ export default function SealsSection() {
   const toggleSeal = (id: number) => setOpenId(openId === id ? null : id);
 
   return (
-    <section className="py-24 bg-gray-50/50 relative">
+    <section id="identidad" className="py-24 bg-gray-50/50 relative scroll-mt-28 md:scroll-mt-32">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Encabezado estandarizado (Estilo Badge) */}

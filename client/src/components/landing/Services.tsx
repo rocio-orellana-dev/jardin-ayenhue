@@ -1,148 +1,198 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Music, Palette, Leaf, ShieldCheck, UserCheck, Utensils } from "lucide-react";
-import { 
-  Globe2, 
-  HeartHandshake, 
-  BookOpenCheck, 
-  Network,
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  BookOpenCheck,
+  Palette,
+  Music,
+  Leaf,
+  Utensils,
+  ShieldCheck,
+  HeartHandshake,
   SmilePlus,
-  Users
+  Globe2,
+  Network,
+  Users,
+  UserCheck,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 
-const services = [
+type Pillar = {
+  tag: string;
+  title: string;
+  description: string;
+  icon: any;
+  color: string;
+  bg: string;
+  border: string;
+  topBar: string;
+  accentSoft: string;
+  items: { label: string; icon: any }[];
+};
+
+const pillars: Pillar[] = [
   {
-    title: "Educación Integral",
-    description: "Fomentamos el desarrollo cognitivo, emocional y social a través del juego y la exploración.",
+    tag: "Aprendizajes",
+    title: "Desarrollo Integral",
+    description:
+      "Crecemos en lo cognitivo, emocional y social, fortaleciendo lenguaje e imaginación desde la primera infancia.",
     icon: UserCheck,
-    color: "text-blue-600",
+    color: "text-blue-700",
     bg: "bg-blue-50",
     border: "group-hover:border-blue-200",
+    topBar: "bg-blue-500/90",
+    accentSoft: "bg-blue-50",
+    items: [
+      { label: "Juego y exploración guiada", icon: Sparkles },
+      { label: "Fomento lector y lenguaje", icon: BookOpenCheck },
+    ],
   },
   {
-    title: "Arte y Creatividad",
-    description: "Espacios dedicados a la pintura, música y expresión artística libre.",
+    tag: "Creatividad",
+    title: "Arte y Expresión",
+    description:
+      "Creamos con libertad: pintura, música y experiencias sensoriales que inspiran confianza y curiosidad.",
     icon: Palette,
-    color: "text-purple-600",
+    color: "text-purple-700",
     bg: "bg-purple-50",
     border: "group-hover:border-purple-200",
+    topBar: "bg-purple-500/90",
+    accentSoft: "bg-purple-50",
+    items: [
+      { label: "Arte y creatividad libre", icon: Palette },
+      { label: "Música, ritmo y movimiento", icon: Music },
+    ],
   },
   {
-    title: "Entorno Natural",
-    description: "Contacto con la naturaleza y respeto por el medio ambiente desde la primera infancia.",
+    tag: "Bienestar",
+    title: "Vida Saludable",
+    description:
+      "Hábitos saludables y vínculo con el entorno: cuidarnos y cuidar la naturaleza desde pequeños.",
     icon: Leaf,
-    color: "text-green-600",
+    color: "text-green-700",
     bg: "bg-green-50",
     border: "group-hover:border-green-200",
+    topBar: "bg-green-500/90",
+    accentSoft: "bg-green-50",
+    items: [
+      { label: "Alimentación saludable", icon: Utensils },
+      { label: "Naturaleza y medio ambiente", icon: Leaf },
+    ],
   },
   {
-    title: "Seguridad y Bienestar",
-    description: "Infraestructura segura y protocolos rigurosos para la tranquilidad de las familias.",
-    icon: ShieldCheck,
-    color: "text-red-600",
-    bg: "bg-red-50",
-    border: "group-hover:border-red-200",
-  },
-  {
-    title: "Alimentación Saludable",
-    description: "Programa de alimentación balanceada supervisado por profesionales.",
-    icon: Utensils,
-    color: "text-orange-600",
-    bg: "bg-orange-50",
-    border: "group-hover:border-orange-200",
-  },
-  {
-    title: "Música y Movimiento",
-    description: "Desarrollo psicomotor a través del baile, canciones y juegos rítmicos.",
-    icon: Music,
-    color: "text-pink-600",
-    bg: "bg-pink-50",
-    border: "group-hover:border-pink-200",
-  },
-  {
-    title: "Tradiciones Locales",
-    description: "Integramos los saberes y la cultura de las familias en cada experiencia educativa.",
-    icon: Globe2,
-    color: "text-secondary",
-    bg: "bg-secondary/10",
-    border: "group-hover:border-secondary/30"
-  },
-  {
-    title: "Trabajo en Redes",
-    description: "Colaboramos activamente con salud, escuelas y organizaciones de Coltauco.",
-    icon: Network,
-    color: "text-primary",
-    bg: "bg-primary/10",
-    border: "group-hover:border-primary/30"
-  },
-  {
-    title: "Educación Intercultural",
-    description: "Un sello que promueve el respeto y valoración de la diversidad desde la cuna.",
-    icon: Users,
-    color: "text-tertiary",
-    bg: "bg-tertiary/10",
-    border: "group-hover:border-tertiary/30"
-  },
-  {
-    title: "Buen Trato",
-    description: "Priorizamos vínculos afectivos seguros, basados en el respeto y la empatía.",
+    tag: "Convivencia",
+    title: "Buen Trato y Seguridad",
+    description:
+      "Ambientes seguros y afectivos, con convivencia respetuosa y protocolos para la tranquilidad de las familias.",
     icon: HeartHandshake,
-    color: "text-secondary",
+    color: "text-rose-700",
+    bg: "bg-rose-50",
+    border: "group-hover:border-rose-200",
+    topBar: "bg-rose-500/90",
+    accentSoft: "bg-rose-50",
+    items: [
+      { label: "Seguridad escolar y protocolos", icon: ShieldCheck },
+      { label: "Vínculos afectivos seguros", icon: HeartHandshake },
+      { label: "Diálogo y resolución respetuosa", icon: SmilePlus },
+    ],
+  },
+  {
+    tag: "Identidad",
+    title: "Interculturalidad y Redes",
+    description:
+      "Celebramos tradiciones y diversidad, trabajando con redes locales para acompañar a cada familia con cercanía.",
+    icon: Globe2,
+    color: "text-secondary-foreground",
     bg: "bg-secondary/10",
-    border: "group-hover:border-secondary/30"
+    border: "group-hover:border-secondary/30",
+    topBar: "bg-secondary",
+    accentSoft: "bg-secondary/10",
+    items: [
+      { label: "Tradiciones locales y cultura familiar", icon: Globe2 },
+      { label: "Educación intercultural", icon: Users },
+      { label: "Trabajo en redes comunitarias", icon: Network },
+    ],
   },
-  {
-    title: "Convivencia Educativa",
-    description: "Ambientes armónicos donde resolvemos conflictos con diálogo y cariño.",
-    icon: SmilePlus,
-    color: "text-primary",
-    bg: "bg-primary/10",
-    border: "group-hover:border-primary/30"
-  },
-  {
-    title: "Seguridad Escolar",
-    description: "Espacios certificados y protocolos rigurosos para la tranquilidad familiar.",
-    icon: ShieldCheck,
-    color: "text-red-600",
-    bg: "bg-red-50",
-    border: "group-hover:border-red-200"
-  },
-  {
-    title: "Fomento Lector",
-    description: "Despertamos la imaginación y el lenguaje a través de la magia de los cuentos.",
-    icon: BookOpenCheck,
-    color: "text-tertiary",
-    bg: "bg-tertiary/10",
-    border: "group-hover:border-tertiary/30"
-  },
-  {
-    title: "Medio Ambiente",
-    description: "Aprendemos a amar y cuidar nuestra naturaleza desde pequeños.",
-    icon: Leaf,
-    color: "text-secondary",
-    bg: "bg-secondary/10",
-    border: "group-hover:border-secondary/30"
-  },
-
 ];
-function ServiceCard({ service, index }: { service: any; index?: number }) {
+
+function PillarCard({
+  pillar,
+  index,
+  className = "",
+}: {
+  pillar: Pillar;
+  index: number;
+  className?: string;
+}) {
   return (
     <Card
-      className={`border border-transparent shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group bg-white rounded-3xl overflow-hidden cursor-default ${service.border} animate-in fade-in slide-in-from-bottom-4`}
-      style={index !== undefined ? { animationDelay: `${index * 100}ms` } : undefined}
+      className={[
+        "relative border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group bg-white rounded-3xl overflow-hidden",
+        pillar.border,
+        "animate-in fade-in slide-in-from-bottom-4",
+        className,
+      ].join(" ")}
+      style={{ animationDelay: `${index * 90}ms` }}
     >
-      <CardHeader className="pb-2 pt-8 px-8">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${service.bg} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
-          <service.icon className={`w-7 h-7 ${service.color}`} />
+      <div className={`h-1.5 w-full ${pillar.topBar}`} />
+
+      <div
+        className={[
+          "pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full blur-3xl opacity-60",
+          pillar.accentSoft,
+        ].join(" ")}
+      />
+
+      <CardHeader className="pb-2 pt-7 px-8">
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border bg-gray-50 border-gray-100 text-primary/80">
+            <span className={`w-2 h-2 rounded-full ${pillar.topBar}`} />
+            {pillar.tag}
+          </span>
+
+          <div
+            className={[
+              "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm",
+              pillar.bg,
+              "transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2",
+            ].join(" ")}
+          >
+            <pillar.icon className={`w-6 h-6 ${pillar.color}`} />
+          </div>
         </div>
-        <CardTitle className="text-xl font-bold text-primary group-hover:text-secondary transition-colors leading-tight relative">
-          {service.title}
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-500 group-hover:w-12 mt-1 block"></span>
+
+        <CardTitle className="text-2xl font-bold text-primary group-hover:text-secondary transition-colors leading-tight">
+          {pillar.title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-8 pb-8">
+
+      <CardContent className="px-8 pb-8 space-y-5">
         <CardDescription className="text-base text-muted-foreground leading-relaxed font-medium group-hover:text-foreground/80 transition-colors">
-          {service.description}
+          {pillar.description}
         </CardDescription>
+
+        <div className="grid gap-2.5">
+          {pillar.items.map((it) => (
+            <div
+              key={it.label}
+              className="flex items-center gap-2.5 rounded-2xl border border-gray-100 bg-white px-3.5 py-2.5 hover:bg-gray-50 transition-colors"
+            >
+              <div className="w-8 h-8 rounded-xl bg-muted/60 flex items-center justify-center">
+                <it.icon className="w-4 h-4 text-primary/70" />
+              </div>
+              <span className="text-sm font-semibold text-gray-700">
+                {it.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
       </CardContent>
     </Card>
   );
@@ -151,9 +201,11 @@ function ServiceCard({ service, index }: { service: any; index?: number }) {
 export default function Services() {
   return (
     <section id="propuesta" className="py-24 bg-muted/40 relative overflow-hidden">
-      {/* Background Pattern */}
       <div className="absolute inset-0 pattern-dots opacity-[0.03] pointer-events-none text-primary"></div>
-      
+
+      <div className="absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-secondary/10 blur-[90px] pointer-events-none"></div>
+      <div className="absolute -bottom-28 -right-28 w-[520px] h-[520px] rounded-full bg-primary/10 blur-[100px] pointer-events-none"></div>
+
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16 animate-in slide-in-from-bottom-8 duration-700">
           <span className="text-secondary font-bold tracking-wider uppercase text-xs bg-white px-4 py-2 rounded-full shadow-sm border border-secondary/20 inline-block mb-4">
@@ -163,35 +215,46 @@ export default function Services() {
             Aprendizaje con sentido y valores
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Nuestra metodología pone al niño y la niña al centro, rodeados de una comunidad que cuida, enseña y respeta.
+            Un enfoque cálido, seguro y lleno de experiencias: acompañamos a cada
+            niño y niña con cariño, respeto y comunidad.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-6">
-          {services.map((service, index) => (
-            <Card 
-              key={index} 
-              className={`border border-transparent shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group bg-white rounded-3xl overflow-hidden cursor-default ${service.border} animate-in fade-in slide-in-from-bottom-4`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <CardHeader className="pb-2 pt-8 px-8">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${service.bg} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
-                  <service.icon className={`w-7 h-7 ${service.color}`} />
-                </div>
-                <CardTitle className="text-xl font-bold text-primary group-hover:text-secondary transition-colors leading-tight relative">
-                  {service.title}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-500 group-hover:w-12 mt-1 block"></span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-8 pb-8">
-                <CardDescription className="text-base text-muted-foreground leading-relaxed font-medium group-hover:text-foreground/80 transition-colors">
-                  {service.description}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          ))}
+        {/* ✅ MEJOR LAYOUT: 3 arriba + 2 abajo centradas (mismo ancho, no gigantes) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {/* 3 primeras normal */}
+          <PillarCard pillar={pillars[0]} index={0} />
+          <PillarCard pillar={pillars[1]} index={1} />
+          <PillarCard pillar={pillars[2]} index={2} />
+
+          {/* Fila editorial centrada: ocupa 3 cols pero adentro controla ancho */}
+          <div className="xl:col-span-3">
+            <div className="mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
+              <PillarCard pillar={pillars[3]} index={3} />
+              <PillarCard pillar={pillars[4]} index={4} />
+            </div>
+          </div>
         </div>
 
+        {/* CTA final */}
+        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button
+            className="rounded-full h-12 px-6 bg-secondary hover:bg-secondary/90 text-primary font-bold shadow-lg"
+            asChild
+          >
+            <a href="#galeria">
+              Ver actividades y momentos
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </a>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="rounded-full h-12 px-6 bg-white/70 backdrop-blur border-gray-200 hover:bg-white text-primary font-bold"
+            asChild
+          >
+          </Button>
+        </div>
       </div>
     </section>
   );

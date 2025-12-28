@@ -49,7 +49,7 @@ export default function CTA() {
                 asChild
               >
                 <a 
-                  href="https://wa.me/56912345678?text=Hola,%20necesito%20ayuda%20con%20la%20postulación."
+                  href="https://wa.me/56992435064?text=Hola,%20necesito%20ayuda%20con%20la%20postulación."
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"

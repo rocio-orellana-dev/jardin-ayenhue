@@ -6,6 +6,7 @@ import About from "@/components/landing/About";
 import IsForYou from "@/components/landing/IsForYou";
 import History from "@/components/landing/History";
 import Services from "@/components/landing/Services";
+import EducationLevels from "@/components/landing/EducationLevels";
 import WhyChooseUs from "@/components/landing/WhyChooseUs";
 import Recognition from "@/components/landing/Recognition";
 import Testimonials from "@/components/landing/Testimonials";
@@ -30,6 +31,7 @@ export default function Home() {
         <IsForYou />
         <History />
         <Services />
+        <EducationLevels />
         <WhyChooseUs />
         <Recognition />
         <Testimonials />

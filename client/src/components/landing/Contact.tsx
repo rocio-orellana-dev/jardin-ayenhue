@@ -235,6 +235,42 @@ export default function Contact() {
             </Form>
           </div>
         </div>
+        {/* Mapa Interactivo - Estilo Ayenhue */}
+          <div className="mt-8 overflow-hidden rounded-[2.5rem] border border-gray-100 shadow-lg group">
+            <div className="relative h-[350px] w-full">
+              {/* Overlay sutil para matching de color (opcional) */}
+              <div className="absolute inset-0 bg-primary/5 pointer-events-none group-hover:bg-transparent transition-colors duration-500 z-10"></div>
+              
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m12!1m3!1d3305.6132!2d-71.0151371!3d-34.2621142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96637b34557530e9%3A0xf61266f9303303b1!2sJard%C3%ADn%20Infantil%20Ayenhue!5e0!3m2!1ses-419!2scl!4v1700000000000!5m2!1ses-419!2scl"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Ubicación Jardín Infantil Ayenhue"
+                className="grayscale-[20%] contrast-[1.1] hover:grayscale-0 transition-all duration-700"
+              ></iframe>
+            </div>
+            
+            {/* Botón de acción rápida sobre el mapa */}
+            <div className="bg-white p-4 flex justify-between items-center border-t border-gray-50">
+              <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-secondary" />
+                Abrir en Google Maps para navegar
+              </span>
+              <Button variant="ghost" size="sm" className="text-primary font-bold hover:text-secondary" asChild>
+                <a 
+                  href="https://maps.app.goo.gl/ChIJ6TB1VTR7Y5YRsQMTMPlmEvY" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  Cómo llegar →
+                </a>
+              </Button>
+            </div>
+          </div>
       </div>
     </section>
   );
