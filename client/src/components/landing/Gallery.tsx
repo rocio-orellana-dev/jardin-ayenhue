@@ -4,14 +4,13 @@ import {
   FolderOpen, X, ChevronLeft, ChevronRight, PlayCircle, 
   ZoomIn, Leaf, Sparkles, Sun, Cloud, Hand 
 } from "lucide-react";
-// Se agrega Variants para solucionar el error de tipado en las animaciones
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 import type { GalleryImage } from "@shared/schema";
 
-// --- COMPONENTES DE SKELETON (Carga Orgánica) ---
+// --- COMPONENTES DE SKELETON ---
 function OrganicCloudSkeleton({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 400 300" className={cn("w-full h-full animate-pulse", className)} preserveAspectRatio="none">
@@ -48,7 +47,7 @@ function GallerySkeleton() {
   );
 }
 
-// --- ELEMENTOS DECORATIVOS FLOTANTES ---
+// --- ELEMENTOS DECORATIVOS ---
 function FloatingElements({ isModalOpen }: { isModalOpen: boolean }) {
   const decorations = useMemo(() => [
     { type: 'icon', Icon: Leaf, size: 40, pos: "top-10 left-[5%]", delay: 0, color: "text-secondary", anim: "animate-float" },
@@ -63,7 +62,6 @@ function FloatingElements({ isModalOpen }: { isModalOpen: boolean }) {
         <div 
           key={i} 
           className={cn(
-            // Corrección: duration-[2000ms] se escribe como duration-2000
             "absolute transition-all duration-2000 ease-in-out opacity-10", 
             item.pos, item.anim, item.color,
             isModalOpen && "blur-sm opacity-5"
@@ -122,7 +120,6 @@ function AlbumCard({ album, index, onOpen }: { album: Album, index: number, onOp
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <div className="bg-white/90 p-4 rounded-full text-primary shadow-xl"><ZoomIn size={32} /></div>
         </div>
-        {/* Corrección: bg-gradient-to-t se escribe como bg-linear-to-t */}
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80" />
         <div className="absolute inset-0 p-8 flex flex-col justify-end">
           <Badge className="w-fit mb-3 bg-secondary text-primary font-black border-none px-4">{album.count} fotos</Badge>
@@ -136,8 +133,6 @@ function AlbumCard({ album, index, onOpen }: { album: Album, index: number, onOp
   );
 }
 
-// --- CONFIGURACIÓN DE ANIMACIONES ---
-// Se define el tipo Variants para solucionar el error TS2322 relacionado con "spring"
 const pageFlipVariants: Variants = {
   enter: (direction: number) => ({ x: direction > 0 ? 800 : -800, rotateY: direction > 0 ? 45 : -45, opacity: 0, scale: 0.9 }),
   center: { 
@@ -198,7 +193,6 @@ export default function Gallery() {
     setSelectedAlbum(album);
     setCurrentImageIndex(0);
     document.body.style.overflow = 'hidden';
-    
     if (!sessionStorage.getItem("ayenhue_swipe_hint")) {
       setShowSwipeHint(true);
       setTimeout(() => {
@@ -233,12 +227,10 @@ export default function Gallery() {
 
       <AnimatePresence>
         {selectedAlbum && (
-          // Corrección: z-[1000] se escribe como z-1000
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-1000 bg-black/95 backdrop-blur-xl flex items-center justify-center">
             
             <AnimatePresence>
               {showSwipeHint && (
-                // Corrección: z-[1100] se escribe como z-1100
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-1100 flex flex-col items-center justify-center pointer-events-none">
                   <motion.div animate={{ x: [-50, 50, -50] }} transition={{ duration: 2, repeat: Infinity }} className="text-secondary mb-4">
                     <Hand size={80} fill="currentColor" className="opacity-40" />
@@ -271,18 +263,20 @@ export default function Gallery() {
                     else if (swipe > 5000) paginate(-1);
                   }}
                 >
-                  {isVideo(selectedAlbum.images[currentImageIndex].url) ? (
-                    // Corrección: rounded-[2rem] se escribe como rounded-4xl
-                    <video src={selectedAlbum.images[currentImageIndex].url} className="max-w-full max-h-full rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" controls autoPlay muted />
-                  ) : (
-                    <img src={selectedAlbum.images[currentImageIndex].url} alt="Galería" className="max-w-full max-h-full object-contain rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" />
-                  )}
+                  <div className="relative max-w-full max-h-full flex flex-col items-center">
+                    {isVideo(selectedAlbum.images[currentImageIndex].url) ? (
+                      <video src={selectedAlbum.images[currentImageIndex].url} className="max-w-full max-h-full rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" controls autoPlay muted />
+                    ) : (
+                      <img src={selectedAlbum.images[currentImageIndex].url} alt="Galería" className="max-w-full max-h-full object-contain rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" />
+                    )}
 
-                  {selectedAlbum.images[currentImageIndex].description && (
-                    <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-secondary text-primary px-6 py-2 rounded-full font-handwritten text-xl shadow-xl whitespace-nowrap">
-                      {selectedAlbum.images[currentImageIndex].description}
-                    </div>
-                  )}
+                    {/* CORRECCIÓN: Descripción adaptable para móviles */}
+                    {selectedAlbum.images[currentImageIndex].description && (
+                      <div className="mt-6 md:absolute md:-bottom-16 md:left-1/2 md:-translate-x-1/2 bg-secondary text-primary px-6 py-3 rounded-2xl md:rounded-full font-handwritten text-lg md:text-xl shadow-xl text-center max-w-[90vw] md:max-w-xl whitespace-normal">
+                        {selectedAlbum.images[currentImageIndex].description}
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </div>

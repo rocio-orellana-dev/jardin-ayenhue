@@ -7,10 +7,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
-// Importación del logo optimizado
 import logoImage from "@assets/generated_images/logo.webp";
 
-// --- SUB-COMPONENTE: BOTÓN HAMBURGUESA ANIMADO ---
 function AnimatedHamburger({ isOpen, isScrolled }: { isOpen: boolean, isScrolled: boolean }) {
   const variant = isOpen ? "opened" : "closed";
   const color = isScrolled || isOpen ? "#0f172a" : "#ffffff";
@@ -61,24 +59,16 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navLinks, activeHash]);
 
-  // --- FUNCIÓN DE NAVEGACIÓN CORREGIDA ---
   const handleNavClick = (href: string) => {
     setActiveHash(href);
     setIsMobileMenuOpen(false);
-    
     const id = href.replace("#", "");
     const el = document.getElementById(id);
-    
     if (el) {
-      // Ajuste para que el Navbar no tape el contenido
       const offset = window.innerWidth < 768 ? 70 : 90;
       const elementPosition = el.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
     }
   };
 
@@ -89,7 +79,8 @@ export default function Navbar() {
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 transition-all duration-500 z-100",
-      isScrolled ? "bg-white/90 backdrop-blur-lg shadow-md py-1.5" : "bg-transparent py-5"
+      // CORRECCIÓN: Fondo blanco sólido sin transparencia al hacer scroll
+      isScrolled ? "bg-white shadow-md py-1.5" : "bg-transparent py-5"
     )}>
       <div className={UI.containerX}>
         <div className="flex items-center justify-between h-[54px] md:h-[70px]">
@@ -168,6 +159,7 @@ export default function Navbar() {
             <button 
               className={cn(
                 "xl:hidden p-3 rounded-xl transition-all duration-500 border",
+                // CORRECCIÓN: Al abrir el menú móvil, el fondo también es blanco sólido
                 isScrolled || isMobileMenuOpen ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20 backdrop-blur-md"
               )}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -178,7 +170,6 @@ export default function Navbar() {
         </div>
       </div>
       
-      {/* Menú Móvil */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
