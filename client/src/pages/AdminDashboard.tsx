@@ -305,9 +305,9 @@ export default function AdminDashboard() {
       <div className="relative max-w-7xl mx-auto px-4 md:px-8 pt-8 space-y-8">
         
         {/* HEADER: Diseño Glass limpio */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white/70 backdrop-blur-xl p-6 rounded-[2rem] shadow-xl shadow-indigo-100/50 border border-white/50">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white/70 backdrop-blur-xl p-6 rounded-2rem shadow-xl shadow-indigo-100/50 border border-white/50">
           <div className="flex items-center gap-5">
-            <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl shadow-lg shadow-indigo-200 text-white">
+            <div className="p-4 bg-linear-to-br from-indigo-500 to-purple-500 rounded-2xl shadow-lg shadow-indigo-200 text-white">
               <Building2 className="h-8 w-8" />
             </div>
             <div>
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
           
           {/* --- TAB: MENSAJES --- */}
           {activeTab === "messages" && (
-            <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/80 backdrop-blur-xl rounded-[2rem] overflow-hidden">
+            <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/80 backdrop-blur-xl rounded-2rem overflow-hidden">
               <CardHeader className="border-b border-slate-100 bg-white/50 px-8 py-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -479,8 +479,8 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Formulario Lateral */}
               <div className="lg:col-span-4">
-                <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/90 backdrop-blur-xl rounded-[2rem] sticky top-8">
-                  <div className="h-2 w-full bg-gradient-to-r from-amber-400 to-orange-400" />
+                <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/90 backdrop-blur-xl rounded-2rem sticky top-8">
+                  <div className="h-2 w-full bg-linear-to-r from-amber-400 to-orange-400" />
                   <CardHeader className="pb-2 pt-6 px-6">
                     <CardTitle className="text-lg font-bold text-slate-800 flex items-center justify-between">
                       {editingId ? "Editar Testimonio" : "Nuevo Testimonio"}
@@ -539,7 +539,7 @@ export default function AdminDashboard() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold shadow-lg shadow-amber-200"
+                        className="w-full h-12 rounded-xl bg-linear-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold shadow-lg shadow-amber-200"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : editingId ? "Guardar Cambios" : "Publicar Testimonio"}
@@ -555,7 +555,7 @@ export default function AdminDashboard() {
                   <div 
                     key={t.id} 
                     className={`
-                      relative flex gap-5 p-6 rounded-[2rem] bg-white shadow-sm border border-slate-100 transition-all duration-300
+                      relative flex gap-5 p-6 rounded-2rem bg-white shadow-sm border border-slate-100 transition-all duration-300
                       ${editingId === t.id ? 'ring-2 ring-amber-400 scale-[1.02] shadow-lg' : 'hover:shadow-md'}
                     `}
                   >
@@ -592,7 +592,7 @@ export default function AdminDashboard() {
                   </div>
                 ))}
                 {testimonials.length === 0 && (
-                   <div className="text-center py-20 bg-white/40 rounded-[2rem] border border-dashed border-slate-300">
+                   <div className="text-center py-20 bg-white/40 rounded-2rem border border-dashed border-slate-300">
                      <Star className="h-10 w-10 text-slate-300 mx-auto mb-2" />
                      <p className="text-slate-500">Aún no hay testimonios publicados</p>
                    </div>
@@ -606,8 +606,8 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Upload Zone */}
               <div className="lg:col-span-4">
-                 <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/90 backdrop-blur-xl rounded-[2rem] sticky top-8">
-                  <div className="h-2 w-full bg-gradient-to-r from-purple-400 to-indigo-500" />
+                 <Card className="border-0 shadow-xl shadow-slate-200/60 bg-white/90 backdrop-blur-xl rounded-2rem sticky top-8">
+                  <div className="h-2 w-full bg-linear-to-r from-purple-400 to-indigo-500" />
                   <CardHeader className="pt-6 px-6 pb-2">
                     <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
                       <ImageIcon className="h-5 w-5 text-purple-500"/> Subir Multimedia
@@ -671,7 +671,7 @@ export default function AdminDashboard() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold shadow-lg shadow-purple-200"
+                        className="w-full h-12 rounded-xl bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold shadow-lg shadow-purple-200"
                         disabled={isSubmitting || !selectedGalleryFile || !newImageMeta.title}
                       >
                         {isSubmitting ? <Loader2 className="animate-spin" /> : "Subir Archivo"}
@@ -683,7 +683,7 @@ export default function AdminDashboard() {
 
               {/* Gallery Grid */}
               <div className="lg:col-span-8">
-                <Card className="border-0 bg-white/60 backdrop-blur-md rounded-[2rem] p-6 min-h-[500px]">
+                <Card className="border-0 bg-white/60 backdrop-blur-md rounded-2rem p-6 min-h-[500px]">
                   {galleryImages.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {galleryImages.map((img) => (
@@ -695,7 +695,7 @@ export default function AdminDashboard() {
                           )}
                           
                           {/* Overlay on Hover */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                          <div className="absolute inset-0 bg-linear-to-t from-purple-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                              <div className="flex justify-between items-end">
                                 <div>
                                   <span className="text-[10px] font-bold text-white bg-white/20 backdrop-blur-md px-2 py-1 rounded-full uppercase tracking-wider">

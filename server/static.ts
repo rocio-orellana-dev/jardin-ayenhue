@@ -1,23 +1,25 @@
+// server/static.ts
 import express, { type Express } from "express";
-import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  // CAMBIO CRÍTICO: Usamos process.cwd() para ir a la raíz del proyecto y luego entrar a dist/public
-  // Esto coincide exactamente con el 'outDir' que pusimos en vite.config.ts
-  const distPath = path.resolve(process.cwd(), "dist", "public");
+  // dist/public es lo que tu build está generando en Render
+  const publicDir = path.resolve(process.cwd(), "dist", "public");
 
-  if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}. Asegúrate de ejecutar 'npm run build' primero.`,
-    );
-  }
+  // 1) ESTÁTICOS PRIMERO (assets, css, js, favicon, etc)
+  app.use(
+    express.static(publicDir, {
+      index: false,
+      maxAge: "1y",
+      immutable: true,
+    })
+  );
 
-  // Servir archivos estáticos (JS, CSS, Imágenes)
-  app.use(express.static(distPath));
-
-  // Catch-all: Si el usuario entra a cualquier ruta, servimos el index.html
-  app.get("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  // 2) Fallback SPA AL FINAL
+  // Importante: esto debe ir después de express.static, si no rompe /assets/*
+  app.get("*", (req, res) => {
+    // si tienes APIs bajo /api, evita capturarlas
+    if (req.path.startsWith("/api")) return res.status(404).end();
+    res.sendFile(path.join(publicDir, "index.html"));
   });
 }

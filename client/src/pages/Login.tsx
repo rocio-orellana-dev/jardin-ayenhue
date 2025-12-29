@@ -61,10 +61,10 @@ export default function Login() {
 
       <div className="relative w-full max-w-md px-6">
         {/* --- Tarjeta Principal con Efecto Glass --- */}
-        <Card className="border-0 shadow-2xl bg-white/70 backdrop-blur-xl rounded-[2rem] overflow-hidden ring-1 ring-white/50">
+        <Card className="border-0 shadow-2xl bg-white/70 backdrop-blur-xl rounded-2rem overflow-hidden ring-1 ring-white/50">
           
           {/* Barra superior de color */}
-          <div className="h-2 w-full bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-400" />
+          <div className="h-2 w-full bg-linear-to-r from-rose-400 via-fuchsia-400 to-indigo-400" />
 
           <CardHeader className="pt-10 pb-2 text-center relative">
             <div className="flex justify-center mb-6 relative">
@@ -129,7 +129,7 @@ export default function Login() {
               {/* Botón Principal */}
               <Button
                 type="submit"
-                className="w-full h-14 text-lg font-semibold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 hover:from-indigo-600 hover:via-purple-600 hover:to-rose-600 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 transform hover:-translate-y-0.5 transition-all duration-300"
+                className="w-full h-14 text-lg font-semibold text-white bg-linear-to-r from-indigo-500 via-purple-500 to-rose-500 hover:from-indigo-600 hover:via-purple-600 hover:to-rose-600 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 transform hover:-translate-y-0.5 transition-all duration-300"
                 disabled={isLoading || password.length === 0}
               >
                 {isLoading ? (

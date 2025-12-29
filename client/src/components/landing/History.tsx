@@ -41,11 +41,11 @@ function AyenhueHistoryMarker({ icon: Icon, isActive }: { icon: any, isActive: b
 }
 
 // ... (Tipos e Imports de imágenes se mantienen iguales para no romper tu código)
-import img1992a from "@assets/generated_images/hero_image_2.webp";
+
 import img2008a from "@assets/generated_images/hero1.webp";
 import img2009a from "@assets/generated_images/hero_image_2.webp";
 import img2022a from "@assets/generated_images/hero_image_3.webp";
-import img2023a from "@assets/generated_images/hero1.webp";
+
 
 type MilestoneId = "1992" | "2008" | "2009" | "2022" | "2023";
 
@@ -62,11 +62,11 @@ export default function History() {
   ], []);
 
   const details = useMemo(() => ({
-    "1992": { title: "1992 — Nuestros Inicios", subtitle: "Historia construida con cariño.", bullets: ["Primeros espacios de aprendizaje.", "Vínculo temprano con familias."], images: [{ src: img1992a, alt: "Inicios" }] },
+    "1992": { title: "1992 — Nuestros Inicios", subtitle: "Historia construida con cariño.", bullets: ["Primeros espacios de aprendizaje.", "Vínculo temprano con familias."], images: [{ src: img2008a, alt: "Inicios" }] },
     "2008": { title: "2008 — Inicio VTF", subtitle: "Crecimos en cobertura.", bullets: ["Profesionalización de gestión.", "Ampliación de atención."], images: [{ src: img2008a, alt: "VTF" }] },
     "2009": { title: "2009 — Nace Ayenhue", subtitle: "Identidad y pertenencia.", bullets: ["Elección del nombre Ayenhue.", "Sello intercultural Mapuche."], images: [{ src: img2009a, alt: "Ayenhue" }] },
     "2022": { title: "2022 — Reconocimiento Oficial", subtitle: "Compromiso con la calidad.", bullets: ["Certificación MINEDUC.", "Foco en bienestar."], images: [{ src: img2022a, alt: "Certificación" }] },
-    "2023": { title: "2023 — Resiliencia", subtitle: "Nos levantamos juntos.", bullets: ["Apoyo tras inundación.", "Reconstrucción colaborativa."], images: [{ src: img2023a, alt: "Resiliencia" }] },
+    "2023": { title: "2023 — Resiliencia", subtitle: "Nos levantamos juntos.", bullets: ["Apoyo tras inundación.", "Reconstrucción colaborativa."], images: [{ src: img2022a, alt: "Resiliencia" }] },
   }), []);
 
   const active = activeId ? (details as any)[activeId] : null;
