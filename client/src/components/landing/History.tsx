@@ -41,11 +41,11 @@ function AyenhueHistoryMarker({ icon: Icon, isActive }: { icon: any, isActive: b
 }
 
 // ... (Tipos e Imports de imágenes se mantienen iguales para no romper tu código)
-import img1992a from "@assets/generated_images/hero_image_2.png";
-import img2008a from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
-import img2009a from "@assets/generated_images/hero_image_2.png";
-import img2022a from "@assets/generated_images/hero_image_3.png";
-import img2023a from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
+import img1992a from "@assets/generated_images/hero_image_2.webp";
+import img2008a from "@assets/generated_images/hero1.webp";
+import img2009a from "@assets/generated_images/hero_image_2.webp";
+import img2022a from "@assets/generated_images/hero_image_3.webp";
+import img2023a from "@assets/generated_images/hero1.webp";
 
 type MilestoneId = "1992" | "2008" | "2009" | "2022" | "2023";
 

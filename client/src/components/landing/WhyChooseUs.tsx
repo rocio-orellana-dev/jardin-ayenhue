@@ -6,8 +6,8 @@ import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 
 import img1 from "@assets/generated_images/outdoor_playground_structure.png";
-import img2 from "@assets/generated_images/hero_image_2.png";
-import img3 from "@assets/generated_images/hero_image_3.png";
+import img2 from "@assets/generated_images/hero_image_2.webp";
+import img3 from "@assets/generated_images/hero_image_3.webp";
 
 export default function WhyChooseUs() {
   const benefits = [

@@ -29,7 +29,7 @@ import IsForYou from "@/components/landing/IsForYou";
 import CTA from "@/components/landing/CTA";
 import Contact from "@/components/landing/Contact";
 
-import logoImage from "@assets/generated_images/logo.png";
+import logoImage from "@assets/generated_images/logo.webp";
 
 // --- COMPONENTE: PANTALLA DE CARGA INSTITUCIONAL ---
 function SplashScreen() {

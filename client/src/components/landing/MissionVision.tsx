@@ -37,9 +37,9 @@ const parseYouTube = (url: string) => {
 type Topic = "vida" | "excelencia" | null;
 
 // Placeholders (Se mantienen igual)
-import placeholder1 from "@assets/generated_images/hero_image_2.png";
-import placeholder2 from "@assets/generated_images/hero_image_3.png";
-import placeholder3 from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
+import placeholder1 from "@assets/generated_images/hero_image_2.webp";
+import placeholder2 from "@assets/generated_images/hero_image_3.webp";
+import placeholder3 from "@assets/generated_images/hero1.webp";
 
 export default function MissionVision() {
   const [open, setOpen] = useState(false);

@@ -69,9 +69,7 @@ export default function TeamSection() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   return (
-    <section id="equipo" className={cn("relative bg-white pb-32 overflow-hidden", UI.sectionY)}>
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply" 
-           style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/natural-paper.png")` }} />
+    <section id="equipo" className={cn("relative bg-white pb-32 overflow-hidden", UI.sectionY)}>      
 
       <div className={cn(UI.containerX, "relative z-10")}>
         <SectionHeader
