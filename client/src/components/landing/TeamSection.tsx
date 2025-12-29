@@ -35,9 +35,9 @@ function TeamPortrait({ src, alt, isExpanded }: { src: string; alt: string; isEx
 }
 
 // Imports de imágenes
-import directoraImg from "@assets/generated_images/viviana_diaz_directora.png";
-import educadoraSCImg from "@assets/generated_images/debora_sanchez_sala_cuna.png";
-import educadoraNMImg from "@assets/generated_images/gisselle_moscoso_nivel_medio.png";
+import directoraImg from "@assets/generated_images/viviana_diaz_directora.webp";
+import educadoraSCImg from "@assets/generated_images/debora_sanchez_sala_cuna.webp";
+import educadoraNMImg from "@assets/generated_images/gisselle_moscoso_nivel_medio.webp";
 
 const team = [
   {

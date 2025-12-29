@@ -69,31 +69,29 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // CORRECCIÓN IMPORTANTE: 
-  // El orden es (app, httpServer) para coincidir con tu archivo routes.ts
+  // 1. Registramos las rutas de la API primero
   await registerRoutes(app, httpServer);
 
-  // Manejo de errores global
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    // No lanzamos el error aquí para evitar crashear el servidor, solo lo logueamos
-    console.error(err); 
-  });
-
-  // Configuración de Vite (Dev) vs Static (Prod)
+  // 2. Configuración de archivos estáticos (Vite vs Prod)
   if (app.get("env") === "development") {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
   } else {
+    // IMPORTANTE: serveStatic debe configurarse después de las rutas de la API
+    // pero antes del middleware de error para que encuentre los archivos .js y .css
     serveStatic(app);
   }
 
-  // Configuración del puerto y host
+  // 3. Middleware de errores (siempre al final de todo)
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+    console.error(err); 
+  });
+
+  // 4. Encendido del servidor
   const port = parseInt(process.env.PORT || "5000", 10);
-  
-  // Usar 0.0.0.0 es más seguro para asegurar acceso externo en deploys y local
   const host = "0.0.0.0"; 
 
   httpServer.listen(port, host, () => {
