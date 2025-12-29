@@ -49,7 +49,7 @@ export default function About() {
               kicker="Sobre Nosotros"
               title="Un jardín de puertas abiertas a la comunidad"
               align="left"
-              className="mb-0"
+              className="mb-5"
             />
             
             <p className={cn(UI.pSection, "text-lg")}>

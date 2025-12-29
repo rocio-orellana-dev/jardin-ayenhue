@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
-// Importación del logo
+// Importación del logo optimizado
 import logoImage from "@assets/generated_images/logo.webp";
 
 // --- SUB-COMPONENTE: BOTÓN HAMBURGUESA ANIMADO ---
@@ -32,7 +32,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeHash, setActiveHash] = useState<string>("#inicio");
-  const [logoLoaded, setLogoLoaded] = useState(false); // Estado para evitar parpadeo
+  const [logoLoaded, setLogoLoaded] = useState(false);
 
   const navLinks = useMemo(() => [
     { name: "Inicio", href: "#inicio", icon: Home },
@@ -61,14 +61,24 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [navLinks, activeHash]);
 
+  // --- FUNCIÓN DE NAVEGACIÓN CORREGIDA ---
   const handleNavClick = (href: string) => {
     setActiveHash(href);
     setIsMobileMenuOpen(false);
+    
     const id = href.replace("#", "");
     const el = document.getElementById(id);
+    
     if (el) {
-      const offset = window.innerWidth < 768 ? 65 : 80;
-      window.scrollTo({ top: el.offsetTop - offset, behavior: "smooth" });
+      // Ajuste para que el Navbar no tape el contenido
+      const offset = window.innerWidth < 768 ? 70 : 90;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
     }
   };
 
@@ -78,41 +88,38 @@ export default function Navbar() {
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 transition-all duration-500 z-500",
+      "fixed top-0 left-0 right-0 transition-all duration-500 z-100",
       isScrolled ? "bg-white/90 backdrop-blur-lg shadow-md py-1.5" : "bg-transparent py-5"
     )}>
       <div className={UI.containerX}>
         <div className="flex items-center justify-between h-[54px] md:h-[70px]">
           
-          {/* LOGO OPTIMIZADO */}
           <motion.button 
             onClick={() => handleNavClick("#inicio")} 
-            className="flex items-center gap-2 group outline-none relative z-10"
+            className="flex items-center gap-2 group outline-none relative z-10 text-left"
             whileHover="hover"
           >
             <motion.div 
               className={cn(
                 "w-10 h-10 md:w-14 md:h-14 rounded-xl bg-white border border-slate-100 overflow-hidden shadow-md flex items-center justify-center p-1 transition-all duration-500",
                 !isScrolled && "ring-4 ring-white/10",
-                !logoLoaded && "animate-pulse bg-slate-200" // Skeleton mientras carga
+                !logoLoaded && "animate-pulse bg-slate-200"
               )}
-              variants={{ hover: { y: -8, rotate: -5, transition: { type: "spring", stiffness: 400 } } }}
+              variants={{ hover: { y: -5, rotate: -5 } }}
             >
               <img 
                 src={logoImage} 
                 alt="Logo Jardín Ayenhue" 
                 className={cn("w-full h-full object-contain transition-opacity duration-300", logoLoaded ? "opacity-100" : "opacity-0")}
                 onLoad={() => setLogoLoaded(true)}
-                // --- ATRIBUTOS DE CARGA CRÍTICA ---
                 loading="eager" 
                 fetchPriority="high"
-                decoding="sync"
               />
             </motion.div>
             
-            <div className="flex flex-col text-left">
+            <div className="flex flex-col">
               <span className={cn(
-                "font-black text-xs md:text-xl tracking-tight transition-colors duration-500 leading-tight", 
+                "font-black text-sm md:text-xl tracking-tight transition-colors duration-500 leading-tight", 
                 isScrolled ? "text-primary" : "text-white"
               )}>
                 Jardín Ayenhue
@@ -126,7 +133,7 @@ export default function Navbar() {
             </div>
           </motion.button>
 
-          {/* ... resto del componente (Desktop Nav, Acciones, Menú Móvil) se mantiene igual ... */}
+          {/* Desktop Nav */}
           <nav className={cn(
             "hidden xl:flex items-center gap-1 p-1 rounded-full border transition-all duration-500",
             isScrolled ? "bg-slate-100/80 border-slate-200 shadow-inner" : "bg-white/10 border-white/20 backdrop-blur-md"
@@ -151,10 +158,10 @@ export default function Navbar() {
             })}
           </nav>
 
-          <div className="flex items-center gap-3 relative z-600">
+          <div className="flex items-center gap-3">
             <Button 
               onClick={() => handleNavClick("#contacto")}
-              className="hidden md:flex rounded-full bg-secondary text-primary font-black px-6 h-10 shadow-lg shadow-secondary/20 border-none"
+              className="hidden md:flex rounded-full bg-secondary text-primary font-black px-6 h-10 shadow-lg shadow-secondary/20 border-none hover:bg-secondary/90"
             >
               Admisión 2026
             </Button>
@@ -170,7 +177,38 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      {/* ... (Menú Móvil AnimatePresence omitido por brevedad, se mantiene igual) ... */}
+      
+      {/* Menú Móvil */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 bg-white z-90 flex flex-col p-8 pt-24"
+          >
+            <div className="flex flex-col gap-4">
+              {navLinks.map((link) => (
+                <button
+                  key={link.name}
+                  onClick={() => handleNavClick(link.href)}
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 text-primary font-black text-lg text-left"
+                >
+                  <link.icon className="w-6 h-6 text-secondary" />
+                  {link.name}
+                </button>
+              ))}
+              <Button 
+                onClick={() => handleNavClick("#contacto")}
+                className="w-full rounded-2xl bg-primary text-white font-black h-16 text-xl mt-4"
+              >
+                Admisión 2026
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

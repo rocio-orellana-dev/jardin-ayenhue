@@ -46,11 +46,9 @@ export default function Contact() {
 
   // --- FUNCIÓN DE ANIMACIÓN CON IMPORTACIÓN DINÁMICA ---
   const triggerAyenhueSuccess = async () => {
-    // Evita errores en el lado del servidor
     if (typeof window === "undefined") return;
     
     try {
-      // Importamos la librería solo cuando se necesita (esto soluciona el conflicto de hooks)
       const { default: confetti } = await import("canvas-confetti");
       
       const duration = 3 * 1000;
@@ -129,7 +127,7 @@ export default function Contact() {
               title="Estamos aquí para ayudarte"
               subtitle="Si tienes dudas sobre el proceso de matrícula o quieres agendar una visita, no dudes en escribirnos."
               align="left"
-              className="mb-0"
+              className="mb-5"
             />
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -237,7 +235,8 @@ export default function Contact() {
         <div className={cn(handDrawnBorder, "mt-12 border-slate-200 overflow-hidden shadow-lg group")}>
           <div className="relative h-[400px] w-full overflow-hidden">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.156554523671!2d-71.0772545!3d-34.3315714!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x966336e053f5f3e9%3A0x6b4c3e3f3e3e3e3e!2sAv.%20Manuel%20Montt%2C%20Coltauco!5e0!3m2!1ses-419!2scl!4v1700000000000"
+              // Mapa centrado exactamente en el Jardín Ayenhue, Coltauco
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.942704044569!2d-71.017712!3d-34.262114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96637b34557530e9%3A0xf61266f9301303b1!2zSmFyZMOtbiBJbmZhbnRpbCBBeWVuaHVl!5e0!3m2!1ses!2scl!4v1703890000000!5m2!1ses!2scl"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -245,7 +244,7 @@ export default function Contact() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Ubicación Jardín Infantil Ayenhue"
-              className="grayscale-40 sepia-20 group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-1000"
+              className="grayscale-40 group-hover:grayscale-0 transition-all duration-1000"
             ></iframe>
           </div>
           <div className="bg-white p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t-2 border-slate-100">
@@ -254,7 +253,14 @@ export default function Contact() {
               Diego Portales con Av. Manuel Montt, El Molino, Coltauco
             </span>
             <Button variant="outline" className={cn("text-primary font-bold border-2 border-primary/20 px-8 transition-all shadow-sm", handDrawnButton)} asChild>
-              <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer">Abrir en Google Maps →</a>
+              {/* Este enlace abre directamente las INDICACIONES hacia el jardín desde la ubicación del usuario */}
+              <a 
+                href="https://www.google.com/maps/dir/?api=1&destination=Jard%C3%ADn+Infantil+Ayenhue+Coltauco&destination_place_id=ChIJ6TB1VTR7Y5YRsQMTMPlmEvY" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                ¿Cómo llegar? →
+              </a>
             </Button>
           </div>
         </div>
