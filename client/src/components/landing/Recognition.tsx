@@ -85,6 +85,7 @@ export default function Recognition() {
 
         </div>
       </div>
+
     </section>
   );
 }
