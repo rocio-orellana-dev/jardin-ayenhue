@@ -11,38 +11,31 @@ export default defineConfig({
     runtimeErrorOverlay(),
     tailwindcss(),
     metaImagesPlugin(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
+    ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
       ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
-          await import("@replit/vite-plugin-dev-banner").then((m) =>
-            m.devBanner(),
-          ),
+          await import("@replit/vite-plugin-cartographer").then((m) => m.cartographer()),
+          await import("@replit/vite-plugin-dev-banner").then((m) => m.devBanner()),
         ]
       : []),
   ],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
-      // --- ESTO FUERZA A TODAS LAS LIBRERÍAS A USAR TU MISMO REACT ---
-      "react": path.resolve(import.meta.dirname, "node_modules/react"),
-      "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
+      // Usamos process.cwd() para asegurar que la ruta sea absoluta y válida en Render
+      "@": path.resolve(process.cwd(), "client", "src"),
+      "@shared": path.resolve(process.cwd(), "shared"),
+      "@assets": path.resolve(process.cwd(), "attached_assets"),
+      "react": path.resolve(process.cwd(), "node_modules/react"),
+      "react-dom": path.resolve(process.cwd(), "node_modules/react-dom"),
     },
     dedupe: ["react", "react-dom"],
   },
-  css: {
-    postcss: {
-      plugins: [],
-    },
-  },
-  root: path.resolve(import.meta.dirname, "client"),
+  // Definimos la raíz del proyecto para Vite
+  root: path.resolve(process.cwd(), "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    // La carpeta de salida debe estar fuera de 'client', en la raíz del proyecto
+    outDir: path.resolve(process.cwd(), "dist/public"),
     emptyOutDir: true,
+    reportCompressedSize: false,
   },
   server: {
     host: "0.0.0.0",
@@ -54,8 +47,6 @@ export default defineConfig({
         secure: false,
       },
     },
-    fs: {
-      strict: false, // Cambiado a false para permitir el acceso a node_modules desde la raíz
-    },
+    fs: { strict: false },
   },
 });

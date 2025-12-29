@@ -82,12 +82,12 @@ export default function MissionVision() {
             <Card className={cn(UI.cardBase, "flex flex-col w-full border-t-8 border-t-primary shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1")}>
               <CardContent className="p-8 md:p-10 flex-1 flex flex-col h-full bg-slate-50/20">
                 <div className="flex items-center gap-5 mb-8">
-                  <div className="p-4 rounded-[2rem] bg-primary/10 text-primary shadow-sm"><HeartHandshake size={32} /></div>
+                  <div className="p-4 rounded-2rem bg-primary/10 text-primary shadow-sm"><HeartHandshake size={32} /></div>
                   <h3 className="text-3xl font-black text-slate-800 tracking-tight">Nuestra Misión</h3>
                 </div>
                 
                 {/* Texto completo de Misión sin el bloque de familias migrantes al final */}
-                <div className="text-slate-600 leading-relaxed space-y-6 text-lg flex-grow">
+                <div className="text-slate-600 leading-relaxed space-y-6 text-lg grow">
                   <p className="text-pretty">Proporcionar a los niños y niñas una educación de calidad, que llegue a todos los lugares y estratos sociales de cada habitante de esta comuna, en igualdad de oportunidades. Que se caracterice por entregar las herramientas necesarias para el desarrollo integral de los niños/as, potenciando estrategias favorables que fortalezcan sus capacidades, habilidades y destrezas, que les propicien aprendizajes relevantes y significativos a través de un rol protagónico durante todo el proceso pedagógico en función del bienestar, desarrollo pleno y trascendencia como sujetos de derechos que le permitan desenvolverse dentro de un contexto social, a través de una participación plena, acorde a sus posibilidades, características personales y singulares, donde se privilegie el juego, buen trato, afectividad, inclusión, estilos de vida saludable, estrecha participación y relación con las familias, fomentando el amor y respeto por las diversidades culturales principalmente la etnia Mapuche, Logrando un proceso enriquecido interculturalmente aportado por las diversas familias que componen nuestro Jardín Infantil (haitianas, venezolana, boliviana, colombianas, entre otros).</p>
                 </div>
               </CardContent>
@@ -99,11 +99,11 @@ export default function MissionVision() {
             <Card className={cn(UI.cardBase, "flex flex-col w-full border-t-8 border-t-secondary shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1")}>
               <CardContent className="p-8 md:p-10 flex-1 flex flex-col h-full bg-slate-50/20">
                 <div className="flex items-center gap-5 mb-8">
-                  <div className="p-4 rounded-[2rem] bg-secondary/10 text-primary shadow-sm"><Eye size={32} /></div>
+                  <div className="p-4 rounded-2rem bg-secondary/10 text-primary shadow-sm"><Eye size={32} /></div>
                   <h3 className="text-3xl font-black text-slate-800 tracking-tight">Nuestra Visión</h3>
                 </div>
                 
-                <div className="text-slate-600 leading-relaxed space-y-6 text-lg flex-grow">
+                <div className="text-slate-600 leading-relaxed space-y-6 text-lg grow">
                   <p className="text-pretty">El Jardín Infantil y Sala Cuna “Ayenhue” tiene como visión trascender en los niños y niñas a través de las prácticas pedagógicas logrando potenciar en ellos/as los valores, sus capacidades, habilidades y destrezas que les permitan relacionarse, desenvolverse de forma autónoma, con una autoestima positiva reconociéndose a sí mismo como una persona capaz de compartir y respetar las diversidades culturales e interculturalidad, con una conciencia clara de estilos de vida saludable, logrando expresar sus opiniones, desarrollándose integralmente en el medio social y cultural en que está inserto.</p>
                 </div>
 
@@ -111,7 +111,7 @@ export default function MissionVision() {
                 <div className="grid grid-cols-2 gap-4 pt-8 mt-auto border-t border-slate-100/50">
                   <button 
                     onClick={() => { setTopic("vida"); setOpen(true); }} 
-                    className="group/btn relative overflow-hidden bg-sky-400/10 backdrop-blur-md p-5 rounded-[2rem] text-center border border-sky-200/50 hover:bg-sky-400/20 transition-all duration-300 shadow-sm flex flex-col items-center"
+                    className="group/btn relative overflow-hidden bg-sky-400/10 backdrop-blur-md p-5 rounded-2rem text-center border border-sky-200/50 hover:bg-sky-400/20 transition-all duration-300 shadow-sm flex flex-col items-center"
                   >
                     <Leaf className="w-8 h-8 text-sky-600 mb-2 transition-transform duration-500 group-hover/btn:scale-110" />
                     <span className="text-[10px] font-black text-sky-800 uppercase tracking-widest">Vida Saludable</span>
@@ -119,7 +119,7 @@ export default function MissionVision() {
                   
                   <button 
                     onClick={() => { setTopic("excelencia"); setOpen(true); }} 
-                    className="group/btn relative overflow-hidden bg-purple-400/10 backdrop-blur-md p-5 rounded-[2rem] text-center border border-purple-200/50 hover:bg-purple-400/20 transition-all duration-300 shadow-sm flex flex-col items-center"
+                    className="group/btn relative overflow-hidden bg-purple-400/10 backdrop-blur-md p-5 rounded-2rem text-center border border-purple-200/50 hover:bg-purple-400/20 transition-all duration-300 shadow-sm flex flex-col items-center"
                   >
                     <Star className="w-8 h-8 text-purple-600 mb-2 transition-transform duration-500 group-hover/btn:scale-110" />
                     <span className="text-[10px] font-black text-purple-800 uppercase tracking-widest">Excelencia</span>
@@ -160,15 +160,15 @@ export default function MissionVision() {
 
                   <div className="grid gap-4">
                     {active.items.map((it, idx) => (
-                      <div key={idx} className="p-6 rounded-[2rem] border border-slate-50 bg-slate-50/50 flex items-center gap-6">
+                      <div key={idx} className="p-6 rounded-2rem border border-slate-50 bg-slate-50/50 flex items-center gap-6">
                         <div className="flex-1">
                           <h4 className="font-black text-slate-800 text-base mb-1 tracking-tight">{it.title}</h4>
                           <p className="text-sm text-slate-500 leading-relaxed font-medium">{it.desc}</p>
                         </div>
                         {it.mediaType === "image" && it.mediaSrc ? (
-                          <OptimizedImage src={it.mediaSrc} alt={it.title} className="w-24 h-24 rounded-[1.5rem] shadow-sm shrink-0 border-2 border-white" />
+                          <OptimizedImage src={it.mediaSrc} alt={it.title} className="w-24 h-24 rounded-1.5rem shadow-sm shrink-0 border-2 border-white" />
                         ) : (
-                          <div className="w-24 h-24 rounded-[1.5rem] bg-white flex items-center justify-center text-slate-200 border border-slate-100 shrink-0"><ImageIcon size={32} /></div>
+                          <div className="w-24 h-24 rounded-1.5rem bg-white flex items-center justify-center text-slate-200 border border-slate-100 shrink-0"><ImageIcon size={32} /></div>
                         )}
                       </div>
                     ))}

@@ -1,7 +1,7 @@
 import { Facebook, Instagram, Mail, MapPin, Phone, Youtube, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
-import logoImage from "@assets/generated_images/logo.png";
+import logoImage from "@assets/generated_images/logo.webp";
 
 export default function Footer() {
   return (

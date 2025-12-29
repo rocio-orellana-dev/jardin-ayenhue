@@ -75,7 +75,7 @@ export default function ValuesSection() {
                 "group rounded-[2.5rem] transition-all duration-500 cursor-pointer",
                 openId === val.id 
                   ? "ring-1 ring-primary/10 shadow-md" 
-                  : "hover:translate-y-[-2px]"
+                  : "hover:translate-y--2px"
               )}
             >
               <div className={cn(UI.cardBase, "p-6 sm:p-8 h-full border-gray-100/50")}>

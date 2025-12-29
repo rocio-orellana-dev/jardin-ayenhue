@@ -1,5 +1,5 @@
 import { useState } from "react";
-import plaqueImage from "@assets/generated_images/official_government_recognition_plaque.png";
+import plaqueImage from "@assets/generated_images/official_government_recognition_plaque.webp";
 import { CheckCircle2, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";

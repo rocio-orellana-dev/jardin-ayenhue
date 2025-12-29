@@ -27,7 +27,7 @@ function TeamPortrait({ src, alt, isExpanded }: { src: string; alt: string; isEx
           "w-full h-full object-cover transition-all duration-1000",
           "sepia-[0.10] saturate-[1.1] contrast-[1.02]", 
           isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-110",
-          isExpanded ? "sepia-0" : "grayscale-[5%] group-hover:grayscale-0 group-hover:scale-105"
+          isExpanded ? "sepia-0" : "grayscale-5 group-hover:grayscale-0 group-hover:scale-105"
         )}
       />
     </div>

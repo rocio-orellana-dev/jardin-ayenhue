@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+// 1. Importamos 'Variants' para resolver los errores de tipado
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// --- IMPORTACIONES (Asegúrate de que estas rutas sean correctas en tu proyecto) ---
+// --- IMPORTACIONES ---
 import almendraImg from "@assets/generated_images/almendra.jpg";
 import nayarethImg from "@assets/generated_images/nayareth.jpg";
 
@@ -64,8 +65,8 @@ export default function Testimonials() {
     setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  // Variantes para la transición principal del contenedor (Zoom/Blur)
-  const containerVariants = {
+  // 2. Aplicamos el tipo 'Variants' para evitar el error TS2322
+  const containerVariants: Variants = {
     enter: (direction: number) => ({
       opacity: 0,
       scale: 0.95,
@@ -86,24 +87,22 @@ export default function Testimonials() {
     })
   };
 
-  // --- NUEVO: Variantes para el efecto "Máquina de Escribir Fluida" ---
-  // Divide el texto en palabras
   const words = testimonials[index].content.split(" ");
 
-  // Contenedor de las palabras: controla el ritmo (stagger)
-  const typewriterContainer = {
+  // 3. Aplicamos 'Variants' al contenedor de la máquina de escribir
+  const typewriterContainer: Variants = {
     hidden: { opacity: 1 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08, // Ajusta la velocidad entre palabras (más alto = más lento)
-        delayChildren: 0.3, // Espera un poco a que termine la transición principal
+        staggerChildren: 0.08,
+        delayChildren: 0.3,
       },
     },
   };
 
-  // Animación individual de cada palabra (Aparición suave desde abajo con blur)
-  const typewriterWord = {
+  // 4. Aplicamos 'Variants' aquí para que acepte el arreglo Bézier en 'ease'
+  const typewriterWord: Variants = {
     hidden: { 
       opacity: 0, 
       y: 10, 
@@ -117,15 +116,13 @@ export default function Testimonials() {
       scale: 1,
       transition: { 
         duration: 0.6, 
-        ease: [0.2, 0.65, 0.3, 0.9] // Easing suave personalizado
+        ease: [0.2, 0.65, 0.3, 0.9] // Ahora TS reconoce esto como una curva válida
       },
     },
   };
-  // ------------------------------------------------------------------
 
   return (
     <section id="testimonios" className={cn(UI.sectionY, "bg-white relative overflow-hidden")}>
-      {/* Círculos decorativos sutiles en el fondo */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40">
         <div className="absolute top-1/4 -left-12 w-64 h-64 rounded-full border border-slate-100 animate-pulse" />
         <div className="absolute bottom-1/4 -right-12 w-96 h-96 rounded-full border border-slate-100 animate-pulse" style={{ animationDelay: '2s' }} />
@@ -139,8 +136,6 @@ export default function Testimonials() {
         />
 
         <div className="relative max-w-4xl mx-auto mt-20">
-          
-          {/* Blob Morphing de fondo */}
           <div 
             className="absolute inset-0 bg-slate-50 -z-10 transition-all duration-1000 opacity-70"
             style={{
@@ -164,14 +159,13 @@ export default function Testimonials() {
                 <div className="flex flex-col items-center text-center px-6 md:px-12">
                   <AnimatedQuote />
 
-                  {/* --- TESTIMONIO CON EFECTO MÁQUINA DE ESCRIBIR --- */}
                   <blockquote className="text-xl md:text-2xl font-heading font-medium text-slate-700 italic leading-relaxed mb-12">
                     "
                     <motion.span
                       variants={typewriterContainer}
                       initial="hidden"
                       animate="visible"
-                      key={index} // Clave para reiniciar la animación al cambiar el índice
+                      key={index}
                       className="inline-block"
                     >
                       {words.map((word, i) => (
@@ -182,14 +176,12 @@ export default function Testimonials() {
                     </motion.span>
                     "
                   </blockquote>
-                  {/* ----------------------------------------------- */}
 
                   <div className="flex items-center gap-5">
-                    {/* Avatar con flotación */}
                     <motion.div 
                       animate={{ y: [0, -5, 0], rotate: [2, -2, 2] }}
                       transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center text-secondary font-black text-2xl border border-slate-100 shadow-lg overflow-hidden shrink-0"
+                      className="w-20 h-20 bg-white rounded-4xl flex items-center justify-center text-secondary font-black text-2xl border border-slate-100 shadow-lg overflow-hidden shrink-0"
                     >
                       {testimonials[index].avatar.length > 2 ? (
                         <img
@@ -214,7 +206,6 @@ export default function Testimonials() {
             </AnimatePresence>
           </div>
 
-          {/* Controles de Navegación */}
           <div className="flex items-center justify-center gap-8 mt-16 relative z-20">
             <button 
               onClick={prev} 
@@ -223,7 +214,6 @@ export default function Testimonials() {
               <ChevronLeft size={28} className="group-hover:-translate-x-1 transition-transform" />
             </button>
 
-            {/* Indicadores (Semillas) */}
             <div className="flex gap-4">
               {testimonials.map((_, i) => (
                 <button

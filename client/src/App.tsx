@@ -28,7 +28,7 @@ export default function App() {
           
           {/* OVERLAY DE IDENTIDAD */}
           <div 
-            className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.25] mix-blend-multiply" 
+            className="fixed inset-0 z-9999 pointer-events-none opacity-25 mix-blend-multiply"
             style={{ 
               backgroundImage: `
                 url("https://www.transparenttextures.com/patterns/natural-paper.png"),

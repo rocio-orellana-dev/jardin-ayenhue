@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 // Importación del logo
-import logoImage from "@assets/generated_images/logo.png";
+import logoImage from "@assets/generated_images/logo.webp";
 
 // --- SUB-COMPONENTE: BOTÓN HAMBURGUESA ANIMADO ---
 function AnimatedHamburger({ isOpen, isScrolled }: { isOpen: boolean, isScrolled: boolean }) {
@@ -78,7 +78,7 @@ export default function Navbar() {
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 transition-all duration-500 z-[500]",
+      "fixed top-0 left-0 right-0 transition-all duration-500 z-500",
       isScrolled ? "bg-white/90 backdrop-blur-lg shadow-md py-1.5" : "bg-transparent py-5"
     )}>
       <div className={UI.containerX}>
@@ -151,7 +151,7 @@ export default function Navbar() {
             })}
           </nav>
 
-          <div className="flex items-center gap-3 relative z-[600]">
+          <div className="flex items-center gap-3 relative z-600">
             <Button 
               onClick={() => handleNavClick("#contacto")}
               className="hidden md:flex rounded-full bg-secondary text-primary font-black px-6 h-10 shadow-lg shadow-secondary/20 border-none"

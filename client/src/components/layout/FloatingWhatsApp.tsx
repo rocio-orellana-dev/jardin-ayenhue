@@ -35,7 +35,7 @@ export default function FloatingWhatsApp() {
         <div className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-md border border-white/30 shadow-[0_14px_40px_rgba(0,0,0,0.18)]" />
 
         {/* Botón real de WhatsApp (con estilo premium) */}
-        <div className="relative w-[56px] h-[56px] rounded-full bg-[#25D366] grid place-items-center shadow-[0_10px_25px_rgba(37,211,102,0.35)] transition-transform duration-300 group-hover:scale-[1.06] active:scale-[0.98]">
+        <div className="relative w-56px h-56px rounded-full bg-[#25D366] grid place-items-center shadow-[0_10px_25px_rgba(37,211,102,0.35)] transition-transform duration-300 group-hover:scale-[1.06] active:scale-[0.98]">
           <MessageCircle className="w-7 h-7 text-white" />
 
           {/* Pulso suave (no ping agresivo) */}

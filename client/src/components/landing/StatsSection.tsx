@@ -129,7 +129,7 @@ function StatCard({ stat, delay, onFinish }: { stat: typeof STATS_CONFIG[0], del
         <div className={cn(
           "p-4 mb-6 rounded-3xl transition-all duration-700",
           stat.bgColor, stat.color, 
-          "group-hover:scale-110 group-hover:rotate-[10deg]",
+          "group-hover:scale-110 group-hover:rotate-10deg",
         )}>
           <stat.icon size={30} strokeWidth={1.5} />
         </div>

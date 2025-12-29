@@ -245,7 +245,7 @@ export default function Contact() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title="Ubicación Jardín Infantil Ayenhue"
-              className="grayscale-[40%] sepia-[20%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-1000"
+              className="grayscale-40 sepia-20 group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-1000"
             ></iframe>
           </div>
           <div className="bg-white p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t-2 border-slate-100">

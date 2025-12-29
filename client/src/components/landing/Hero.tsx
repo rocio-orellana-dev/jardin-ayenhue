@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import { motion, AnimatePresence } from "framer-motion";
 
-import hero1 from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
-import hero2 from "@assets/generated_images/hero_image_2.png";
-import hero3 from "@assets/generated_images/hero_image_3.png";
+import hero1 from "@assets/generated_images/hero1.webp";
+import hero2 from "@assets/generated_images/hero_image_2.webp";
+import hero3 from "@assets/generated_images/hero_image_3.webp";
 
 export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
@@ -71,8 +71,8 @@ export default function Hero() {
         ))}
 
         {/* Overlays de contraste mejorados para legibilidad */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/60 to-transparent mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-primary/20"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-primary/90 via-primary/60 to-transparent mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-primary/60 via-transparent to-primary/20"></div>
       </div>
 
       <div className={cn(UI.containerX, "pt-25 relative z-10")}>

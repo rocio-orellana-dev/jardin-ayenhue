@@ -95,7 +95,7 @@ export default function SealsSection() {
                 UI.cardBase,
                 "w-full md:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-1.5rem)]",
                 "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
-                openId === seal.id ? 'ring-1 ring-primary/10 shadow-md' : 'hover:translate-y-[-2px]'
+                openId === seal.id ? 'ring-1 ring-primary/10 shadow-md' : 'hover:translate-y--2px'
               )}
             >
               <div className="p-8 pb-5 flex items-start justify-between gap-4">

@@ -31,7 +31,7 @@ export default function MobileStickyCTA() {
   return (
     <div 
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-[60] p-4 bg-white/90 backdrop-blur-lg border-t border-slate-100 md:hidden transition-transform duration-500 ease-in-out shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.05)]",
+        "fixed bottom-0 left-0 right-0 z-60 p-4 bg-white/90 backdrop-blur-lg border-t border-slate-100 md:hidden transition-transform duration-500 ease-in-out shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.05)]",
         isVisible ? "translate-y-0" : "translate-y-full"
       )}
       role="complementary"

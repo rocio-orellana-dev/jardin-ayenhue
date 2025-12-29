@@ -4,7 +4,8 @@ import {
   FolderOpen, X, ChevronLeft, ChevronRight, PlayCircle, 
   ZoomIn, Leaf, Sparkles, Sun, Cloud, Hand 
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+// Se agrega Variants para solucionar el error de tipado en las animaciones
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
@@ -62,7 +63,8 @@ function FloatingElements({ isModalOpen }: { isModalOpen: boolean }) {
         <div 
           key={i} 
           className={cn(
-            "absolute transition-all duration-[2000ms] ease-in-out opacity-10", 
+            // Corrección: duration-[2000ms] se escribe como duration-2000
+            "absolute transition-all duration-2000 ease-in-out opacity-10", 
             item.pos, item.anim, item.color,
             isModalOpen && "blur-sm opacity-5"
           )}
@@ -120,7 +122,8 @@ function AlbumCard({ album, index, onOpen }: { album: Album, index: number, onOp
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <div className="bg-white/90 p-4 rounded-full text-primary shadow-xl"><ZoomIn size={32} /></div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+        {/* Corrección: bg-gradient-to-t se escribe como bg-linear-to-t */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80" />
         <div className="absolute inset-0 p-8 flex flex-col justify-end">
           <Badge className="w-fit mb-3 bg-secondary text-primary font-black border-none px-4">{album.count} fotos</Badge>
           <h3 className="text-3xl font-black font-heading text-white mb-2 leading-tight">{album.title}</h3>
@@ -133,10 +136,21 @@ function AlbumCard({ album, index, onOpen }: { album: Album, index: number, onOp
   );
 }
 
-// --- COMPONENTE PRINCIPAL ---
-const pageFlipVariants = {
+// --- CONFIGURACIÓN DE ANIMACIONES ---
+// Se define el tipo Variants para solucionar el error TS2322 relacionado con "spring"
+const pageFlipVariants: Variants = {
   enter: (direction: number) => ({ x: direction > 0 ? 800 : -800, rotateY: direction > 0 ? 45 : -45, opacity: 0, scale: 0.9 }),
-  center: { zIndex: 1, x: 0, rotateY: 0, opacity: 1, scale: 1, transition: { x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.4 } } },
+  center: { 
+    zIndex: 1, 
+    x: 0, 
+    rotateY: 0, 
+    opacity: 1, 
+    scale: 1, 
+    transition: { 
+      x: { type: "spring", stiffness: 300, damping: 30 }, 
+      opacity: { duration: 0.4 } 
+    } 
+  },
   exit: (direction: number) => ({ zIndex: 0, x: direction < 0 ? 800 : -800, rotateY: direction < 0 ? 45 : -45, opacity: 0, scale: 0.9 } )
 };
 
@@ -219,12 +233,13 @@ export default function Gallery() {
 
       <AnimatePresence>
         {selectedAlbum && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-xl flex items-center justify-center">
+          // Corrección: z-[1000] se escribe como z-1000
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-1000 bg-black/95 backdrop-blur-xl flex items-center justify-center">
             
-            {/* HINT DE DESLIZAR (SWIPE) */}
             <AnimatePresence>
               {showSwipeHint && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[1100] flex flex-col items-center justify-center pointer-events-none">
+                // Corrección: z-[1100] se escribe como z-1100
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-1100 flex flex-col items-center justify-center pointer-events-none">
                   <motion.div animate={{ x: [-50, 50, -50] }} transition={{ duration: 2, repeat: Infinity }} className="text-secondary mb-4">
                     <Hand size={80} fill="currentColor" className="opacity-40" />
                   </motion.div>
@@ -257,9 +272,10 @@ export default function Gallery() {
                   }}
                 >
                   {isVideo(selectedAlbum.images[currentImageIndex].url) ? (
-                    <video src={selectedAlbum.images[currentImageIndex].url} className="max-w-full max-h-full rounded-[2rem] shadow-2xl border-4 border-white/10 pointer-events-none" controls autoPlay muted />
+                    // Corrección: rounded-[2rem] se escribe como rounded-4xl
+                    <video src={selectedAlbum.images[currentImageIndex].url} className="max-w-full max-h-full rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" controls autoPlay muted />
                   ) : (
-                    <img src={selectedAlbum.images[currentImageIndex].url} alt="Galería" className="max-w-full max-h-full object-contain rounded-[2rem] shadow-2xl border-4 border-white/10 pointer-events-none" />
+                    <img src={selectedAlbum.images[currentImageIndex].url} alt="Galería" className="max-w-full max-h-full object-contain rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" />
                   )}
 
                   {selectedAlbum.images[currentImageIndex].description && (

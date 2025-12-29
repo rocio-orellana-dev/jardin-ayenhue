@@ -158,7 +158,7 @@ export default function WhyChooseUs() {
                 ))}
 
                 <div className="absolute inset-0 bg-primary/5 mix-blend-multiply pointer-events-none z-20" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none z-20" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent pointer-events-none z-20" />
 
                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 flex items-center justify-between z-30">
                   <Button
