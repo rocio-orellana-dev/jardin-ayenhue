@@ -4,22 +4,42 @@ import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ChevronDown, Award } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Imports de imágenes (Placeholders institucionales)
+// --- COMPONENTE: RETRATO OPTIMIZADO CON SKELETON ---
+function TeamPortrait({ src, alt, isExpanded }: { src: string; alt: string; isExpanded: boolean }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <div className="relative w-full h-full bg-slate-100">
+      {/* Skeleton animado mientras carga */}
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-slate-200 animate-pulse flex items-center justify-center">
+          <Heart className="text-slate-300 w-12 h-12 animate-bounce" />
+        </div>
+      )}
+      <img 
+        src={src} 
+        alt={alt} 
+        loading="lazy"
+        onLoad={() => setIsLoaded(true)}
+        className={cn(
+          "w-full h-full object-cover transition-all duration-1000",
+          "sepia-[0.10] saturate-[1.1] contrast-[1.02]", 
+          isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-110",
+          isExpanded ? "sepia-0" : "grayscale-[5%] group-hover:grayscale-0 group-hover:scale-105"
+        )}
+      />
+    </div>
+  );
+}
+
+// Imports de imágenes
 import directoraImg from "@assets/generated_images/viviana_diaz_directora.png";
 import educadoraSCImg from "@assets/generated_images/debora_sanchez_sala_cuna.png";
 import educadoraNMImg from "@assets/generated_images/gisselle_moscoso_nivel_medio.png";
 
-type TeamMember = {
-  name: string;
-  role: string;
-  levelBadge?: string;
-  focus: string;
-  bio: string;
-  image: string;
-};
-
-const team: TeamMember[] = [
+const team = [
   {
     name: "Viviana Díaz",
     role: "Directora Institucional",
@@ -49,14 +69,9 @@ export default function TeamSection() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   return (
-    <section 
-      id="equipo" 
-      className={cn("relative bg-white pb-32 overflow-hidden", UI.sectionY)}
-    >
-      {/* CAPA DE TEXTURA DE PAPEL SUTIL (CSS Grain) */}
+    <section id="equipo" className={cn("relative bg-white pb-32 overflow-hidden", UI.sectionY)}>
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-multiply" 
-        style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/natural-paper.png")` }} 
-      />
+           style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/natural-paper.png")` }} />
 
       <div className={cn(UI.containerX, "relative z-10")}>
         <SectionHeader
@@ -75,78 +90,55 @@ export default function TeamSection() {
                 onClick={() => setExpandedIndex(isExpanded ? null : index)}
                 className="group flex flex-col items-center cursor-pointer"
               >
-                {/* DISEÑO DE PORTAL PREMIUM */}
                 <div className="relative w-full max-w-[320px] mb-12">
-                  
-                  {/* Marco Trasero Decorativo (Ghost Frame) */}
                   <div className={cn(
                     "absolute -inset-3 border border-slate-100 rounded-t-[160px] rounded-b-3xl transition-all duration-700",
                     isExpanded ? "scale-105 border-secondary/40" : "scale-100"
                   )} />
 
-                  {/* Contenedor Principal de Imagen (Forma de Portal) */}
                   <div className={cn(
-                    "relative aspect-[1/1.3] overflow-hidden bg-slate-50 transition-all duration-700 shadow-[0_20px_50px_rgba(0,0,0,0.06)]",
+                    "relative aspect-[1/1.3] overflow-hidden transition-all duration-700 shadow-xl",
                     "rounded-t-[150px] rounded-b-2xl", 
-                    isExpanded ? "shadow-secondary/10" : "group-hover:shadow-xl"
+                    isExpanded ? "shadow-secondary/20" : "group-hover:shadow-2xl"
                   )}>
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className={cn(
-                        "w-full h-full object-cover transition-all duration-1000",
-                        "sepia-[0.10] saturate-[1.1] contrast-[1.02]", 
-                        isExpanded ? "scale-105 sepia-0" : "grayscale-[5%] group-hover:grayscale-0 group-hover:scale-105"
-                      )}
-                    />
+                    {/* USO DEL COMPONENTE OPTIMIZADO */}
+                    <TeamPortrait src={member.image} alt={member.name} isExpanded={isExpanded} />
                     
                     {member.levelBadge && (
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-white/95 backdrop-blur-md text-primary font-bold border-none px-6 py-2 rounded-full shadow-xl shadow-black/10 text-xs tracking-widest uppercase">
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+                        <Badge className="bg-white/95 backdrop-blur-md text-primary font-bold border-none px-6 py-2 rounded-full shadow-xl text-[10px] tracking-widest uppercase">
                           {member.levelBadge}
                         </Badge>
                       </div>
                     )}
                   </div>
 
-                  <div className="absolute -top-4 -right-2 bg-secondary text-primary p-2.5 rounded-full shadow-lg transform transition-transform group-hover:rotate-12">
+                  <div className="absolute -top-4 -right-2 bg-secondary text-primary p-2.5 rounded-full shadow-lg transform transition-transform group-hover:rotate-12 z-20">
                     <Award className="w-5 h-5" />
                   </div>
                 </div>
 
-                {/* INFORMACIÓN Y TIPOGRAFÍA REFINADA */}
                 <div className="text-center w-full max-w-sm">
-                  <div className="flex justify-center mb-6" aria-hidden="true">
+                  <div className="flex justify-center mb-6">
                     <div className="h-px w-8 bg-slate-200 self-center" />
                     <Heart className={cn("mx-4 w-5 h-5 transition-all duration-500", isExpanded ? "text-secondary fill-secondary scale-125" : "text-slate-200")} />
                     <div className="h-px w-8 bg-slate-200 self-center" />
                   </div>
                   
-                  <h3 className="text-3xl font-heading font-extrabold text-primary mb-1 tracking-tight">
-                    {member.name}
-                  </h3>
-                  
-                  <p className="text-[10px] font-black text-secondary uppercase tracking-[0.4em] mb-5">
-                    {member.role}
-                  </p>
-
-                  <p className="text-slate-500 text-lg font-medium leading-relaxed italic max-w-xs mx-auto mb-2">
-                    "{member.focus}"
-                  </p>
+                  <h3 className="text-3xl font-heading font-black text-primary mb-1 tracking-tight">{member.name}</h3>
+                  <p className="text-[10px] font-black text-secondary uppercase tracking-[0.4em] mb-5">{member.role}</p>
+                  <p className="text-slate-500 text-lg font-medium italic mb-2">"{member.focus}"</p>
 
                   <div className={cn(
                     "grid transition-all duration-700 ease-in-out overflow-hidden text-left",
                     isExpanded ? "grid-rows-[1fr] opacity-100 mt-8" : "grid-rows-[0fr] opacity-0"
                   )}>
-                    <div className="min-h-0 bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-100">
-                      <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                        {member.bio}
-                      </p>
+                    <div className="min-h-0 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                      <p className="text-sm text-slate-600 leading-relaxed font-medium">{member.bio}</p>
                     </div>
                   </div>
 
-                  <button className="mt-6 flex flex-col items-center mx-auto text-slate-300 transition-colors group-hover:text-secondary group-focus:text-secondary outline-none">
-                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] mb-1 opacity-0 group-hover:opacity-100 transition-opacity">Ver biografía</span>
+                  <button className="mt-6 flex flex-col items-center mx-auto text-slate-300 transition-colors group-hover:text-secondary outline-none">
                     <ChevronDown className={cn("w-6 h-6 transition-transform duration-500", isExpanded && "rotate-180")} />
                   </button>
                 </div>
