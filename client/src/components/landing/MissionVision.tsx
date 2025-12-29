@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HeartHandshake, Eye, Leaf, Users, Star, Image as ImageIcon } from "lucide-react";
+import { HeartHandshake, Eye, Leaf, Users, Star, Image as ImageIcon, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { UI } from "@/styles/ui";
+import SectionHeader from "@/components/SectionHeader";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +18,28 @@ import placeholder1 from "@assets/generated_images/hero_image_2.png";
 import placeholder2 from "@assets/generated_images/hero_image_3.png";
 import placeholder3 from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
 import placeholder4 from "@assets/generated_images/hero_image_2.png";
+
+const parseYouTube = (url: string) => {
+  if (!url) return { id: null, thumb: null };
+  let id: string | null = null;
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.hostname === 'youtu.be') {
+      id = urlObj.pathname.slice(1);
+    } else if (urlObj.pathname.includes('/shorts/') || urlObj.pathname.includes('/embed/')) {
+      id = urlObj.pathname.split('/').filter(Boolean).pop()?.split('?')[0] || null;
+    } else {
+      id = urlObj.searchParams.get('v');
+    }
+  } catch (e) {
+    const match = url.match(/(?:v=|\/shorts\/|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    id = match ? match[1] : null;
+  }
+  return {
+    id,
+    thumb: id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
+  };
+};
 
 export default function MissionVision() {
   const [open, setOpen] = useState(false);
@@ -93,46 +118,19 @@ export default function MissionVision() {
 
   const active = topic ? content[topic] : null;
 
-  const youtubeEmbed = (url: string) => {
-    // soporta https://www.youtube.com/watch?v=ID y https://youtu.be/ID
-    if (!url) return "";
-    if (url.includes("youtu.be/")) {
-      const id = url.split("youtu.be/")[1]?.split("?")[0];
-      return id ? `https://www.youtube.com/embed/${id}` : url;
-    }
-    if (url.includes("watch?v=")) {
-      const base = url.replace("watch?v=", "embed/");
-      return base.split("&")[0];
-    }
-    return url;
-  };
-
   return (
-    <section className="pt-20 pb-24 bg-white relative overflow-hidden">
-      {/* Decoración de fondo sutil y moderna */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px] -ml-40 -mb-40 pointer-events-none"></div>
+    <section className={cn("bg-white", UI.sectionY)}>
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        {/* Encabezado */}
-        <div className="text-center mb-16 space-y-4 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <span className="text-secondary font-bold tracking-wider uppercase text-xs bg-gray-50 px-4 py-2 rounded-full border border-gray-100 inline-block mb-2">
-            Nuestra Esencia
-          </span>
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary">
-            Misión y Visión
-          </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            La brújula que guía cada paso en el Jardín Infantil y Sala Cuna Ayenhue:
-            educar con amor, respeto y diversidad.
-          </p>
-        </div>
+      <div className={UI.containerX}>
+        <SectionHeader 
+          kicker="Nuestra Esencia"
+          title="Misión y Visión"
+          subtitle="La brújula que guía cada paso en el Jardín Infantil y Sala Cuna Ayenhue: educar con amor, respeto y diversidad."
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
-          {/* MISIÓN */}
-          <Card className="border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-white rounded-3xl overflow-hidden group h-full flex flex-col">
+          <Card className={cn(UI.cardBase, "flex flex-col")}>
             <div className="h-1.5 bg-primary w-full"></div>
-
             <CardContent className="p-8 md:p-10 flex-1 flex flex-col">
               <div className="flex items-center gap-5 mb-6">
                 <div className="p-3.5 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
@@ -142,7 +140,6 @@ export default function MissionVision() {
                   Nuestra Misión
                 </h3>
               </div>
-
               <div className="text-gray-600 leading-relaxed space-y-5 text-lg flex-1">
                 <p>
                   Proporcionar a los niños y niñas una{" "}
@@ -153,9 +150,8 @@ export default function MissionVision() {
                   Entregamos herramientas para el desarrollo integral, potenciando capacidades y destrezas
                   a través de un rol protagónico del niño. Privilegiamos el juego, el buen trato y la afectividad.
                 </p>
-
                 <div className="bg-orange-50 p-5 rounded-2xl border border-orange-100 flex gap-4 mt-2">
-                  <Users className="w-6 h-6 text-orange-500 shrink-0 mt-1" />
+                  <Users className="w-6 h-6 text-orange-500 shrink-0 mt-1" aria-hidden="true" />
                   <p className="text-sm text-gray-700 italic font-medium">
                     Fomentamos el amor y respeto por las diversidades culturales, principalmente la{" "}
                     <span className="font-bold text-orange-700">etnia Mapuche</span>, integrando la riqueza de
@@ -166,10 +162,8 @@ export default function MissionVision() {
             </CardContent>
           </Card>
 
-          {/* VISIÓN */}
-          <Card className="border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-white rounded-3xl overflow-hidden group h-full flex flex-col">
+          <Card className={cn(UI.cardBase, "flex flex-col")}>
             <div className="h-1.5 bg-secondary w-full"></div>
-
             <CardContent className="p-8 md:p-10 flex-1 flex flex-col">
               <div className="flex items-center gap-5 mb-6">
                 <div className="p-3.5 rounded-2xl bg-secondary/10 text-secondary-foreground group-hover:bg-secondary group-hover:text-primary transition-colors duration-300">
@@ -179,7 +173,6 @@ export default function MissionVision() {
                   Nuestra Visión
                 </h3>
               </div>
-
               <div className="text-gray-600 leading-relaxed space-y-5 text-lg flex-1">
                 <p>
                   Ser reconocidos como un espacio educativo que logra{" "}
@@ -197,36 +190,25 @@ export default function MissionVision() {
                   Aspiramos a una comunidad que vive y respeta la interculturalidad y los estilos de vida saludable
                   como base del bienestar común.
                 </p>
-
-                {/* ✅ Clicables con CTA */}
                 <div className="grid grid-cols-2 gap-4 mt-6">
                   <button
                     type="button"
-                    onClick={() => {
-                      setTopic("vida");
-                      setOpen(true);
-                    }}
-                    className="bg-blue-50 p-4 rounded-2xl text-center border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    onClick={() => { setTopic("vida"); setOpen(true); }}
+                    className="bg-blue-50 p-4 rounded-2xl text-center border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 group/btn"
+                    aria-label="Ver detalles sobre Vida Saludable"
                   >
-                    <Leaf className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">
-                      Vida Saludable
-                    </span>
+                    <Leaf className="w-6 h-6 text-blue-600 mx-auto mb-2 transition-transform group-hover/btn:scale-110" />
+                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">Vida Saludable</span>
                     <p className="mt-2 text-xs text-blue-700/80">Ver actividades →</p>
                   </button>
-
                   <button
                     type="button"
-                    onClick={() => {
-                      setTopic("excelencia");
-                      setOpen(true);
-                    }}
-                    className="bg-purple-50 p-4 rounded-2xl text-center border border-purple-100 hover:bg-purple-100 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    onClick={() => { setTopic("excelencia"); setOpen(true); }}
+                    className="bg-purple-50 p-4 rounded-2xl text-center border border-purple-100 hover:bg-purple-100 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 group/btn"
+                    aria-label="Ver detalles sobre Excelencia"
                   >
-                    <Star className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                    <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">
-                      Excelencia
-                    </span>
+                    <Star className="w-6 h-6 text-purple-600 mx-auto mb-2 transition-transform group-hover/btn:scale-110" />
+                    <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">Excelencia</span>
                     <p className="mt-2 text-xs text-purple-700/80">Ver acciones →</p>
                   </button>
                 </div>
@@ -236,93 +218,74 @@ export default function MissionVision() {
         </div>
       </div>
 
-      {/* ✅ Modal con actividades + fotos + video */}
       <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-2xl rounded-2xl p-0 overflow-hidden">
-        <div className="max-h-[85vh] md:max-h-[80vh] overflow-y-auto">
-          <div className="p-6 md:p-7">
-            <DialogHeader>
-              <DialogTitle className="text-primary text-2xl font-heading">
-                {active?.title ?? ""}
-              </DialogTitle>
-              {active?.subtitle && (
-                <p className="text-sm text-muted-foreground">{active.subtitle}</p>
-              )}
-            </DialogHeader>
+        <DialogContent className="sm:max-w-2xl rounded-3xl p-0 overflow-hidden border border-gray-100 shadow-2xl focus:outline-none">
+          <div className="max-h-[85vh] md:max-h-[80vh] overflow-y-auto overscroll-contain">
+            <div className="p-6 md:p-8">
+              <DialogHeader className="mb-6">
+                <DialogTitle className="text-primary text-2xl font-heading font-bold">
+                  {active?.title ?? ""}
+                </DialogTitle>
+                {active?.subtitle && (
+                  <p className="text-base text-muted-foreground mt-1">{active.subtitle}</p>
+                )}
+              </DialogHeader>
 
-            {active && (
-              <div className="space-y-5 mt-4">
-                {/* ✅ Video preview (fallback pro, sin iframe) */}
-                {(() => {
-                  const getYouTubeId = (url: string) => {
-                    try {
-                      if (url.includes("youtu.be/")) return url.split("youtu.be/")[1]?.split("?")[0] ?? "";
-                      if (url.includes("watch?v=")) return url.split("watch?v=")[1]?.split("&")[0] ?? "";
-                      return "";
-                    } catch {
-                      return "";
-                    }
-                  };
-                  const getYouTubeThumb = (id: string) => (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : "");
+              {active && (
+                <div className="space-y-6">
+                  {(() => {
+                    const { id, thumb } = parseYouTube(active.youtube);
+                    if (!id || !thumb) return null;
 
-                  const ytId = active.youtube ? getYouTubeId(active.youtube) : "";
-                  const ytThumb = ytId ? getYouTubeThumb(ytId) : "";
-
-                  if (!active.youtube || !ytId) return null;
-
-                  return (
-                    <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white">
-                      <div className="relative">
-                        <img
-                          src={ytThumb}
-                          alt={`Vista previa: ${active.title}`}
-                          className="w-full aspect-video object-cover"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-black/25"></div>
-
-                        <a
-                          href={active.youtube}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="absolute inset-0 flex items-center justify-center"
-                          aria-label="Ver video en YouTube"
-                        >
-                          <div className="rounded-full bg-white/90 hover:bg-white text-primary px-5 py-3 font-bold shadow-xl transition">
-                            ▶ Ver video en YouTube
-                          </div>
-                        </a>
-                      </div>
-
-                      <div className="p-4 flex items-center justify-between gap-3">
-                        <p className="text-sm text-muted-foreground">
-                          Algunos videos no permiten reproducción embebida. Ábrelo en YouTube para verlo.
-                        </p>
-                        <Button asChild className="rounded-xl">
-                          <a href={active.youtube} target="_blank" rel="noopener noreferrer">
-                            Abrir
+                    return (
+                      <div className="rounded-2xl overflow-hidden border border-gray-100 bg-slate-50">
+                        <div className="relative aspect-video group/yt">
+                          <img
+                            src={thumb}
+                            alt={`Video de ${active.title}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover/yt:scale-105"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover/yt:bg-black/20 transition-colors" />
+                          <a
+                            href={active.youtube}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute inset-0 flex items-center justify-center focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary/50 rounded-2xl"
+                            aria-label="Reproducir video en YouTube (abre nueva pestaña)"
+                          >
+                            <div className="rounded-full bg-white/95 text-primary px-6 py-3 font-bold shadow-2xl transition hover:bg-white hover:scale-105 flex items-center gap-2">
+                              <span className="text-lg">▶</span> Ver video en YouTube
+                            </div>
                           </a>
-                        </Button>
+                        </div>
+                        <div className="p-4 flex items-center justify-between gap-4 bg-white">
+                          <p className="text-sm text-muted-foreground flex-1">
+                            Abre el video en YouTube para ver más registros de nuestras actividades.
+                          </p>
+                          <Button asChild size="sm" className="rounded-xl shrink-0">
+                            <a href={active.youtube} target="_blank" rel="noopener noreferrer">
+                              Abrir <ExternalLink className="ml-2 w-3 h-3" />
+                            </a>
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
 
-                {/* ✅ Actividades */}
-                <div className="grid gap-4">
-                  {active.items.map((it) => (
-                    <div
-                      key={it.title}
-                      className="border border-gray-100 rounded-2xl p-4 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-4">
+                  <div className="grid gap-3">
+                    {active.items.map((it, idx) => (
+                      <div
+                        key={`${it.title}-${idx}`}
+                        className="border border-gray-100 rounded-2xl p-4 bg-white hover:border-primary/10 transition-colors flex items-start justify-between gap-4"
+                      >
                         <div className="flex-1">
-                          <p className="font-bold text-gray-800">{it.title}</p>
-                          <p className="text-sm text-gray-600 mt-1">{it.desc}</p>
+                          <p className="font-bold text-gray-900 leading-tight">{it.title}</p>
+                          <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">{it.desc}</p>
                         </div>
 
                         {it.mediaType === "image" ? (
-                          <div className="w-24 h-16 md:w-28 md:h-20 rounded-xl overflow-hidden border border-gray-100 shrink-0 bg-gray-50">
+                          <div className="w-20 h-16 md:w-24 md:h-18 rounded-xl overflow-hidden border border-gray-50 shrink-0 shadow-sm">
                             <img
                               src={it.mediaSrc}
                               alt={it.mediaAlt}
@@ -331,27 +294,25 @@ export default function MissionVision() {
                             />
                           </div>
                         ) : (
-                          <div className="w-24 h-16 md:w-28 md:h-20 rounded-xl border border-gray-100 shrink-0 bg-gray-50 flex items-center justify-center text-gray-400">
-                            <ImageIcon className="w-6 h-6" />
+                          <div className="w-20 h-16 md:w-24 md:h-18 rounded-xl border border-gray-100 shrink-0 bg-slate-50 flex items-center justify-center text-slate-300">
+                            <ImageIcon className="w-6 h-6" aria-hidden="true" />
                           </div>
                         )}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-                <div className="flex justify-end gap-2 pt-1">
-                  <Button variant="outline" onClick={() => setOpen(false)} className="rounded-xl">
-                    Cerrar
-                  </Button>
+                  <div className="flex justify-end pt-4 border-t border-gray-50">
+                    <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-xl text-muted-foreground hover:bg-slate-50 font-semibold px-6">
+                      Cerrar
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

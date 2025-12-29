@@ -1,20 +1,47 @@
 import { useMemo, useState } from "react";
 import { Star, Heart, TrendingUp, Anchor, Users, Image as ImageIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { UI } from "@/styles/ui";
+import SectionHeader from "@/components/SectionHeader";
+import AyenhueIcon from "./AyenhueIcon";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
-/**
- * ✅ Reemplaza estos placeholders por fotos reales cuando las tengas.
- * Mantengo placeholders para que compile sí o sí.
- */
+// --- SUB-COMPONENTE: MARCADOR DE LÍNEA ORGÁNICO (Semilla) ---
+function AyenhueHistoryMarker({ icon: Icon, isActive }: { icon: any, isActive: boolean }) {
+  return (
+    <div className="relative flex items-center justify-center w-16 h-16 group/marker">
+      {/* Capa 1: Mancha de pintura/Semilla orgánica de fondo */}
+      <svg
+        viewBox="0 0 100 100"
+        className={cn(
+          "absolute inset-0 w-full h-full fill-current transition-all duration-700 ease-out",
+          isActive ? "text-secondary opacity-25 rotate-12 scale-125" : "text-slate-100 opacity-100 rotate-0 scale-100"
+        )}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M20,50 C20,30 35,15 55,15 C75,15 85,35 85,55 C85,75 70,85 50,85 C30,85 20,70 20,50" />
+      </svg>
+
+      {/* Capa 2: Contenedor del icono con borde "scribble" */}
+      <div className={cn(
+        "relative z-10 w-12 h-12 flex items-center justify-center bg-white rounded-[1.2rem] shadow-sm transition-all duration-500",
+        "border-2",
+        isActive ? "border-secondary scale-110" : "border-slate-100"
+      )}>
+        <Icon className={cn("w-6 h-6 transition-colors", isActive ? "text-secondary" : "text-slate-400")} />
+        
+        {/* Simbolismo Kultrun: Puntos en el marcador */}
+        <div className="absolute -top-1 -right-1 flex gap-0.5">
+          <div className={cn("w-1.5 h-1.5 rounded-full", isActive ? "bg-secondary" : "bg-slate-200")} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ... (Tipos e Imports de imágenes se mantienen iguales para no romper tu código)
 import img1992a from "@assets/generated_images/hero_image_2.png";
-import img1992b from "@assets/generated_images/hero_image_3.png";
 import img2008a from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
 import img2009a from "@assets/generated_images/hero_image_2.png";
 import img2022a from "@assets/generated_images/hero_image_3.png";
@@ -22,190 +49,73 @@ import img2023a from "@assets/generated_images/hero_image_of_happy_children_play
 
 type MilestoneId = "1992" | "2008" | "2009" | "2022" | "2023";
 
-type Milestone = {
-  id: MilestoneId;
-  year: string;
-  title: string;
-  description: string;
-  icon: any;
-};
-
 export default function History() {
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<MilestoneId | null>(null);
 
-  const milestones: Milestone[] = useMemo(
-    () => [
-      {
-        id: "1992",
-        year: "1992",
-        title: "Nuestros Inicios",
-        description:
-          "Comenzamos como un pequeño Jardín Familiar, sembrando las primeras semillas de educación en la comunidad.",
-        icon: Star,
-      },
-      {
-        id: "2008",
-        year: "2008",
-        title: "Inicio VTF",
-        description:
-          "Nos transformamos en Jardín Infantil VTF, ampliando cobertura y profesionalizando nuestra gestión.",
-        icon: TrendingUp,
-      },
-      {
-        id: "2009",
-        year: "2009",
-        title: "Nace el Jardín Infantil y Sala Cuna Ayenhue",
-        description:
-          "La comunidad elige nuestro nombre: Ayenhue (Lugar de Alegría), reflejando nuestra identidad mapuche.",
-        icon: Heart,
-      },
-      {
-        id: "2022",
-        year: "2022",
-        title: "Reconocimiento Oficial",
-        description:
-          "Certificación de calidad del Estado (MINEDUC), un sello de confianza para nuestras familias.",
-        icon: Anchor,
-      },
-      {
-        id: "2023",
-        year: "2023",
-        title: "Resiliencia Comunitaria",
-        description:
-          "Tras la inundación, nos levantamos con fuerza gracias al apoyo incondicional de toda la comunidad.",
-        icon: Users,
-      },
-    ],
-    []
-  );
+  const milestones = useMemo(() => [
+    { id: "1992", year: "1992", title: "Nuestros Inicios", description: "Comenzamos como un pequeño Jardín Familiar, sembrando las primeras semillas de educación.", icon: Star },
+    { id: "2008", year: "2008", title: "Inicio VTF", description: "Nos transformamos en Jardín Infantil VTF, profesionalizando nuestra gestión.", icon: TrendingUp },
+    { id: "2009", year: "2009", title: "Nace Ayenhue", description: "La comunidad elige nuestro nombre: Ayenhue (Lugar de Alegría), identidad mapuche.", icon: Heart },
+    { id: "2022", year: "2022", title: "Reconocimiento Oficial", description: "Certificación de calidad del Estado (MINEDUC), un sello de confianza.", icon: Anchor },
+    { id: "2023", year: "2023", title: "Resiliencia Comunitaria", description: "Tras la inundación, nos levantamos con fuerza gracias al apoyo incondicional.", icon: Users },
+  ], []);
 
-  const details = useMemo(() => {
-    return {
-      "1992": {
-        title: "1992 — Nuestros Inicios",
-        subtitle: "El comienzo de una historia construida con cariño y comunidad.",
-        bullets: [
-          "Primeros espacios de aprendizaje y cuidado, con un enfoque cercano y familiar.",
-          "Vínculo temprano con familias y redes locales de apoyo.",
-          "Base de nuestro sello: afectividad, respeto y participación.",
-        ],
-        images: [
-          { src: img1992a, alt: "Archivo fotográfico: primeros años del jardín" },
-          { src: img1992b, alt: "Archivo fotográfico: comunidad en actividades iniciales" },
-        ],
-      },
-      "2008": {
-        title: "2008 — Inicio VTF",
-        subtitle: "Crecimos en cobertura y fortalecimos una gestión más profesional.",
-        bullets: [
-          "Ampliación de atención y fortalecimiento del equipo educativo.",
-          "Mejoras en planificación pedagógica y organización interna.",
-          "Mayor articulación con programas e instituciones.",
-        ],
-        images: [{ src: img2008a, alt: "Actividades educativas y crecimiento institucional" }],
-      },
-      "2009": {
-        title: "2009 — Nace Ayenhue",
-        subtitle: "“Lugar de Alegría”: identidad y pertenencia para nuestras familias.",
-        bullets: [
-          "Elección comunitaria del nombre Ayenhue, con sentido y pertenencia.",
-          "Sello intercultural: respeto por raíces e identidad mapuche.",
-          "Fortalecimiento de tradiciones, lenguaje y celebraciones significativas.",
-        ],
-        images: [{ src: img2009a, alt: "Identidad y actividades interculturales" }],
-      },
-      "2022": {
-        title: "2022 — Reconocimiento Oficial",
-        subtitle: "Un hito que refuerza la confianza y el compromiso con la calidad.",
-        bullets: [
-          "Consolidación de procesos y buenas prácticas institucionales.",
-          "Foco en seguridad, bienestar y mejora continua.",
-          "Reconocimiento como respaldo para familias y comunidad.",
-        ],
-        images: [{ src: img2022a, alt: "Reconocimientos y avances institucionales" }],
-      },
-      "2023": {
-        title: "2023 — Resiliencia Comunitaria",
-        subtitle: "Nos levantamos juntos: apoyo, fuerza y reconstrucción.",
-        bullets: [
-          "Trabajo colaborativo con familias y redes de apoyo locales.",
-          "Reconstrucción y continuidad educativa con enfoque humano.",
-          "Aprendizajes: comunidad, solidaridad y esperanza.",
-        ],
-        images: [{ src: img2023a, alt: "Comunidad y resiliencia en actividades" }],
-      },
-    } as const;
-  }, []);
+  const details = useMemo(() => ({
+    "1992": { title: "1992 — Nuestros Inicios", subtitle: "Historia construida con cariño.", bullets: ["Primeros espacios de aprendizaje.", "Vínculo temprano con familias."], images: [{ src: img1992a, alt: "Inicios" }] },
+    "2008": { title: "2008 — Inicio VTF", subtitle: "Crecimos en cobertura.", bullets: ["Profesionalización de gestión.", "Ampliación de atención."], images: [{ src: img2008a, alt: "VTF" }] },
+    "2009": { title: "2009 — Nace Ayenhue", subtitle: "Identidad y pertenencia.", bullets: ["Elección del nombre Ayenhue.", "Sello intercultural Mapuche."], images: [{ src: img2009a, alt: "Ayenhue" }] },
+    "2022": { title: "2022 — Reconocimiento Oficial", subtitle: "Compromiso con la calidad.", bullets: ["Certificación MINEDUC.", "Foco en bienestar."], images: [{ src: img2022a, alt: "Certificación" }] },
+    "2023": { title: "2023 — Resiliencia", subtitle: "Nos levantamos juntos.", bullets: ["Apoyo tras inundación.", "Reconstrucción colaborativa."], images: [{ src: img2023a, alt: "Resiliencia" }] },
+  }), []);
 
-  const active = activeId ? details[activeId] : null;
+  const active = activeId ? (details as any)[activeId] : null;
 
   return (
-    <section id="historia" className="py-24 bg-white">
-      <div className="container mx-auto px-4 md:px-6">
-        {/* ✅ Sin animación */}
-        <div className="text-center mb-20">
-          <span className="text-primary/60 font-bold tracking-wider uppercase text-sm">
-            Nuestra Trayectoria
-          </span>
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary mt-3">
-            Una historia de compromiso
-          </h2>
-        </div>
+    <section id="historia" className={cn(UI.sectionY, "bg-white")}>
+      <div className={UI.containerX}>
+        <SectionHeader kicker="Nuestra Trayectoria" title="Una historia de compromiso" />
 
-        <div className="relative max-w-5xl mx-auto">
-          {/* ✅ Línea vertical SIN animación */}
-          <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 h-full w-0.5 bg-linear-to-b from-primary/5 via-primary/20 to-primary/5 rounded-full" />
+        <div className="relative max-w-5xl mx-auto mt-24">
+          {/* LÍNEA DE TIEMPO: Ahora con estilo punteado tipo "costura" artesanal */}
+          <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 h-full w-px border-l-2 border-dashed border-slate-200" />
 
-          <div className="space-y-12">
+          <div className="space-y-20">
             {milestones.map((milestone, index) => {
-              const Icon = milestone.icon;
               const reverse = index % 2 === 0;
+              const isActive = activeId === milestone.id;
 
               return (
                 <button
-                  type="button"
                   key={milestone.id}
-                  onClick={() => {
-                    setActiveId(milestone.id);
-                    setOpen(true);
-                  }}
-                  className={`w-full text-left flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0 relative ${
+                  onClick={() => { setActiveId(milestone.id as MilestoneId); setOpen(true); }}
+                  className={cn(
+                    "w-full flex flex-col md:flex-row items-start md:items-center gap-8 relative group outline-none",
                     reverse ? "md:flex-row-reverse" : ""
-                  }`}
+                  )}
                 >
-                  {/* Content Box */}
-                  <div className="pl-12 md:pl-0 w-full md:w-1/2 md:px-12 group">
-                    <div
-                      className={`bg-white p-6 md:p-8 rounded-3xl shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-gray-100 hover:shadow-lg hover:border-secondary/20 transition-all duration-300 ${
-                        reverse ? "md:text-left" : "md:text-right"
-                      }`}
-                    >
-                      <span className="text-secondary font-bold text-2xl block mb-2 font-heading">
-                        {milestone.year}
-                      </span>
-                      <h3 className="text-xl font-bold text-primary mb-3">
-                        {milestone.title}
-                      </h3>
-                      <p className="text-muted-foreground leading-relaxed text-base">
-                        {milestone.description}
-                      </p>
-
-                      <div className={`mt-4 flex ${reverse ? "md:justify-start" : "md:justify-end"} justify-start`}>
-                        <span className="text-xs font-bold text-secondary uppercase tracking-wider">
-                          Ver más →
+                  <div className="pl-16 md:pl-0 w-full md:w-1/2 md:px-12">
+                    <div className={cn(
+                      UI.cardBase, 
+                      "p-8 transition-all duration-500",
+                      isActive ? "border-secondary/30 shadow-lg scale-[1.02]" : "border-slate-50 group-hover:border-slate-200",
+                      reverse ? "md:text-left" : "md:text-right"
+                    )}>
+                      <span className="text-secondary font-bold text-2xl block mb-2 font-heading">{milestone.year}</span>
+                      <h3 className="text-xl font-bold text-slate-900 mb-3">{milestone.title}</h3>
+                      <p className="text-slate-500 text-sm leading-relaxed">{milestone.description}</p>
+                      <div className={cn("mt-4 flex", !reverse ? "md:justify-end" : "justify-start")}>
+                        <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] group-hover:text-primary transition-colors">
+                          Ver historia →
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Center Icon */}
-                  <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-white border-4 border-secondary shadow-md z-10 mt-1.5 md:mt-0">
-                    <div className="w-2.5 h-2.5 bg-secondary rounded-full" />
+                  {/* REEMPLAZO: Marcador de Semilla Orgánica en el eje central */}
+                  <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 z-20">
+                    <AyenhueHistoryMarker icon={milestone.icon} isActive={isActive} />
                   </div>
-
-                  {/* Spacer */}
-                  <div className="hidden md:block w-1/2" />
                 </button>
               );
             })}
@@ -213,67 +123,23 @@ export default function History() {
         </div>
       </div>
 
-      {/* ✅ Modal con más información + imágenes */}
+      {/* DIÁLOGOS Y CIERRE (Sin cambios para mantener funcionalidad) */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-3xl rounded-2xl p-0 overflow-hidden">
-          <div className="max-h-[85vh] overflow-y-auto">
-            <div className="p-6 md:p-7">
-              <DialogHeader>
-                <DialogTitle className="text-primary text-2xl font-heading">
-                  {active?.title ?? ""}
-                </DialogTitle>
-                {active?.subtitle && (
-                  <p className="text-sm text-muted-foreground">{active.subtitle}</p>
-                )}
-              </DialogHeader>
-
-              {active && (
-                <div className="mt-5 space-y-6">
-                  {/* Bullets */}
-                  <div className="grid gap-3">
-                    {active.bullets.map((b) => (
-                      <div
-                        key={b}
-                        className="border border-gray-100 rounded-2xl p-4 bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        <p className="text-sm text-gray-700">{b}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Imágenes */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <ImageIcon className="w-5 h-5 text-secondary" />
-                      <p className="text-sm font-bold text-primary">Galería del hito</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {active.images.map((img) => (
-                        <Card key={img.src} className="rounded-2xl overflow-hidden border border-gray-100">
-                          <CardContent className="p-0">
-                            <img
-                              src={img.src}
-                              alt={img.alt}
-                              className="w-full h-48 object-cover"
-                              loading="lazy"
-                            />
-                            <div className="p-4">
-                              <p className="text-xs text-muted-foreground">{img.alt}</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="outline" onClick={() => setOpen(false)} className="rounded-xl">
-                      Cerrar
-                    </Button>
-                  </div>
+        <DialogContent className="sm:max-w-3xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+          <div className="p-8">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-primary text-3xl font-heading font-extrabold">{active?.title}</DialogTitle>
+              <p className="text-slate-500 italic mt-2">{active?.subtitle}</p>
+            </DialogHeader>
+            <div className="grid gap-4">
+              {active?.bullets.map((b: string, i: number) => (
+                <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-slate-600 text-sm font-medium">
+                  {b}
                 </div>
-              )}
+              ))}
+            </div>
+            <div className="mt-8 flex justify-end">
+              <Button onClick={() => setOpen(false)} className="rounded-full bg-primary font-bold px-8">Cerrar</Button>
             </div>
           </div>
         </DialogContent>

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { UI } from "@/styles/ui";
+import SectionHeader from "@/components/SectionHeader";
 
-// ✅ Importa varias imágenes para el carrusel
 import img1 from "@assets/generated_images/outdoor_playground_structure.png";
 import img2 from "@assets/generated_images/hero_image_2.png";
 import img3 from "@assets/generated_images/hero_image_3.png";
@@ -17,7 +19,6 @@ export default function WhyChooseUs() {
     "Ambiente bien tratante y afectivo.",
   ];
 
-  // ✅ Slides del carrusel (puedes cambiar alt y sumar más)
   const slides = useMemo(
     () => [
       { src: img1, alt: "Patio de juegos seguro" },
@@ -28,8 +29,7 @@ export default function WhyChooseUs() {
   );
 
   const [active, setActive] = useState(0);
-
-  // Swipe / drag state
+  const [paused, setPaused] = useState(false);
   const startX = useRef<number | null>(null);
   const deltaX = useRef<number>(0);
 
@@ -43,23 +43,25 @@ export default function WhyChooseUs() {
   const goPrev = () => setActive((p) => clampIndex(p - 1));
   const goNext = () => setActive((p) => clampIndex(p + 1));
 
-  // ✅ Teclado (accesible)
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowLeft") goPrev();
-    if (e.key === "ArrowRight") goNext();
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      goPrev();
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      goNext();
+    }
   };
 
-  // ✅ Autoplay suave (se pausa si el usuario interactúa)
-  const [paused, setPaused] = useState(false);
   useEffect(() => {
     if (paused) return;
     const t = setInterval(() => setActive((p) => clampIndex(p + 1)), 6500);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused]);
 
-  // ✅ Pointer (mouse/touch) para arrastrar
   const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     setPaused(true);
     startX.current = e.clientX;
     deltaX.current = 0;
@@ -72,48 +74,41 @@ export default function WhyChooseUs() {
 
   const onPointerUp = () => {
     if (startX.current === null) return;
-
-    const threshold = 55; // sensibilidad swipe
+    const threshold = 50;
     const dx = deltaX.current;
-
+    
     startX.current = null;
     deltaX.current = 0;
 
     if (dx > threshold) goPrev();
     else if (dx < -threshold) goNext();
-
-    // reanuda autoplay luego de un ratito
+    
     setTimeout(() => setPaused(false), 4000);
   };
 
   return (
-    <section className="py-24 bg-white">
-      <div className="container mx-auto px-4 md:px-6">
+    <section id="porque-elegirnos" className={cn(UI.sectionY, "bg-white")}>
+      <div className={UI.containerX}>
         <div className="bg-muted/30 rounded-[3rem] p-8 md:p-12 lg:p-16 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Texto */}
-            <div className="space-y-10">
-              <div>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-primary mb-6">
-                  ¿Por qué elegir Jardín Infantil y Sala Cuna Ayenhue?
-                </h2>
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  Sabemos que elegir el primer lugar educativo para tu hijo es una
-                  decisión importante. Aquí te damos razones para confiar en
-                  nosotros.
-                </p>
-              </div>
+            <div className="space-y-8">
+              <SectionHeader
+                title="¿Por qué elegir Jardín Infantil y Sala Cuna Ayenhue?"
+                subtitle="Sabemos que elegir el primer lugar educativo para tu hijo es una decisión importante. Aquí te damos razones para confiar en nosotros."
+                align="left"
+                className="mb-5" 
+              />
 
-              <div className="grid grid-cols-1 gap-5">
+              <div className="grid grid-cols-1 gap-4">
                 {benefits.map((benefit, index) => (
                   <div
                     key={index}
-                    className="flex items-start gap-4 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+                    className={cn(UI.cardBase, "flex items-start gap-4 p-4 border-none shadow-sm rounded-2xl bg-white/80")}
                   >
-                    <div className="mt-0.5 bg-secondary/10 p-1.5 rounded-full text-secondary">
+                    <div className="mt-0.5 bg-secondary/10 p-1.5 rounded-full text-secondary shrink-0">
                       <CheckCircle2 className="w-5 h-5" />
                     </div>
-                    <span className="font-medium text-primary text-lg">
+                    <span className="font-medium text-primary text-lg leading-snug">
                       {benefit}
                     </span>
                   </div>
@@ -121,97 +116,112 @@ export default function WhyChooseUs() {
               </div>
             </div>
 
-            {/* ✅ Carrusel (reemplaza imagen fija) */}
             <div className="relative w-full">
               <div
-                className="relative h-[340px] sm:h-[420px] lg:h-[500px] w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-white select-none"
+                className="relative h-[340px] sm:h-[420px] lg:h-[500px] w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 select-none touch-pan-y outline-none focus-visible:ring-4 focus-visible:ring-secondary/50 transition-shadow"
                 role="region"
-                aria-label="Carrusel de imágenes del Jardín Ayenhue"
+                aria-roledescription="carousel"
+                aria-label="Galería de nuestras instalaciones"
                 tabIndex={0}
                 onKeyDown={onKeyDown}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
+                onPointerLeave={onPointerUp}
                 onPointerCancel={onPointerUp}
                 onMouseEnter={() => setPaused(true)}
                 onMouseLeave={() => setPaused(false)}
               >
-                {/* Slides */}
+                <div className="sr-only" aria-live="polite">
+                  Mostrando imagen {active + 1} de {slides.length}
+                </div>
+
                 {slides.map((s, idx) => (
-                  <img
+                  <div
                     key={s.src}
-                    src={s.src}
-                    alt={s.alt}
-                    className={[
-                      "absolute inset-0 w-full h-full object-cover",
-                      "transition-opacity duration-700 ease-in-out",
-                      "will-change-opacity",
-                      idx === active ? "opacity-100" : "opacity-0",
-                    ].join(" ")}
-                    loading={idx === 0 ? "eager" : "lazy"}
-                    draggable={false}
-                  />
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label={`${idx + 1} de ${slides.length}`}
+                    className={cn(
+                      "absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out",
+                      idx === active ? "opacity-100 z-10" : "opacity-0 z-0"
+                    )}
+                  >
+                    <img
+                      src={s.src}
+                      alt={s.alt}
+                      className="w-full h-full object-cover"
+                      loading={idx === 0 ? "eager" : "lazy"}
+                      draggable={false}
+                    />
+                  </div>
                 ))}
 
-                {/* Overlay elegante */}
-                <div className="absolute inset-0 bg-primary/10 mix-blend-multiply pointer-events-none" />
-                <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-primary/5 mix-blend-multiply pointer-events-none z-20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none z-20" />
 
-                {/* Flechas */}
-                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 flex items-center justify-between">
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 flex items-center justify-between z-30">
                   <Button
                     type="button"
                     variant="secondary"
-                    className="h-11 w-11 rounded-full bg-white/80 hover:bg-white text-primary shadow-lg backdrop-blur-md border border-white/50"
-                    onClick={() => {
+                    size="icon"
+                    className="h-11 w-11 rounded-full bg-white/90 hover:bg-white text-primary shadow-xl backdrop-blur-md border border-white/50 focus-visible:ring-2 focus-visible:ring-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setPaused(true);
                       goPrev();
-                      setTimeout(() => setPaused(false), 4000);
                     }}
                     aria-label="Imagen anterior"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-6 h-6" />
                   </Button>
 
                   <Button
                     type="button"
                     variant="secondary"
-                    className="h-11 w-11 rounded-full bg-white/80 hover:bg-white text-primary shadow-lg backdrop-blur-md border border-white/50"
-                    onClick={() => {
+                    size="icon"
+                    className="h-11 w-11 rounded-full bg-white/90 hover:bg-white text-primary shadow-xl backdrop-blur-md border border-white/50 focus-visible:ring-2 focus-visible:ring-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setPaused(true);
                       goNext();
-                      setTimeout(() => setPaused(false), 4000);
                     }}
                     aria-label="Imagen siguiente"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-6 h-6" />
                   </Button>
                 </div>
 
-                {/* Dots */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                <div 
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-30"
+                  role="tablist"
+                  aria-label="Seleccionar imagen"
+                >
                   {slides.map((_, i) => (
                     <button
                       key={i}
                       type="button"
-                      onClick={() => {
+                      role="tab"
+                      aria-selected={i === active}
+                      aria-label={`Ir a imagen ${i + 1}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setPaused(true);
                         setActive(i);
-                        setTimeout(() => setPaused(false), 4000);
                       }}
-                      className={[
-                        "h-2.5 rounded-full transition-all duration-300",
-                        i === active ? "w-8 bg-white shadow" : "w-2.5 bg-white/60 hover:bg-white/80",
-                      ].join(" ")}
-                      aria-label={`Ir a imagen ${i + 1}`}
+                      className={cn(
+                        "h-2.5 rounded-full transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-white",
+                        i === active ? "w-8 bg-white shadow-md" : "w-2.5 bg-white/60 hover:bg-white/80"
+                      )}
                     />
                   ))}
                 </div>
               </div>
 
-              {/* Hint swipe (solo móvil/tabla) */}
-              <div className="mt-3 text-center text-xs text-muted-foreground lg:hidden">
-                Desliza con tu dedo para cambiar la imagen
+              <div className="mt-4 text-center text-xs font-bold uppercase tracking-widest text-slate-400 lg:hidden flex items-center justify-center gap-2">
+                <span className="w-8 h-px bg-slate-200"></span>
+                Desliza para explorar
+                <span className="w-8 h-px bg-slate-200"></span>
               </div>
             </div>
           </div>

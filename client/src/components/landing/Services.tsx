@@ -6,6 +6,10 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { UI } from "@/styles/ui";
+import SectionHeader from "@/components/SectionHeader";
+import AyenhueIcon from "./AyenhueIcon"; 
 import {
   BookOpenCheck,
   Palette,
@@ -22,6 +26,39 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+
+// --- SUB-COMPONENTE: ICONO DE LISTA ARTESANAL ---
+function AyenhueMiniIcon({ icon: Icon, colorClass }: { icon: any, colorClass: string }) {
+  return (
+    <div className="relative w-8 h-8 flex items-center justify-center shrink-0 group/mini">
+      {/* Fondo orgánico tipo "mancha de pintura" o "semilla" */}
+      <svg
+        viewBox="0 0 100 100"
+        className={cn("absolute inset-0 w-full h-full fill-current opacity-15 transition-transform duration-500 group-hover/mini:rotate-12", colorClass)}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M25,50 C25,30 35,20 55,20 C75,20 85,30 85,50 C85,70 75,80 55,80 C35,80 25,70 25,50" />
+      </svg>
+      
+      {/* Detalle de trazo manual (bordado) */}
+      <svg
+        viewBox="0 0 100 100"
+        className={cn("absolute inset-0 w-full h-full stroke-current opacity-30", colorClass)}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path 
+          d="M30,50 C30,35 38,25 55,25 C72,25 80,35 80,50 C80,65 72,75 55,75 C38,75 30,65 30,50" 
+          strokeWidth="2" 
+          strokeDasharray="4 3" 
+          strokeLinecap="round"
+        />
+      </svg>
+
+      <Icon className={cn("relative z-10 w-4 h-4 opacity-80 transition-transform group-hover/mini:scale-110", colorClass)} />
+    </div>
+  );
+}
 
 type Pillar = {
   tag: string;
@@ -132,39 +169,36 @@ function PillarCard({
 }) {
   return (
     <Card
-      className={[
-        "relative border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group bg-white rounded-3xl overflow-hidden",
+      className={cn(
+        UI.cardBase,
         pillar.border,
-        "animate-in fade-in slide-in-from-bottom-4",
-        className,
-      ].join(" ")}
+        "animate-in fade-in slide-in-from-bottom-4 relative group",
+        className
+      )}
       style={{ animationDelay: `${index * 90}ms` }}
     >
-      <div className={`h-1.5 w-full ${pillar.topBar}`} />
+      <div className={cn("h-1.5 w-full relative z-20", pillar.topBar)} />
 
       <div
-        className={[
+        className={cn(
           "pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full blur-3xl opacity-60",
-          pillar.accentSoft,
-        ].join(" ")}
+          pillar.accentSoft
+        )}
       />
 
-      <CardHeader className="pb-2 pt-7 px-8">
+      <CardHeader className="pb-2 pt-7 px-8 relative z-10">
         <div className="flex items-center justify-between gap-4 mb-5">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border bg-gray-50 border-gray-100 text-primary/80">
-            <span className={`w-2 h-2 rounded-full ${pillar.topBar}`} />
+            <span className={cn("w-2 h-2 rounded-full", pillar.topBar)} />
             {pillar.tag}
           </span>
 
-          <div
-            className={[
-              "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm",
-              pillar.bg,
-              "transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2",
-            ].join(" ")}
-          >
-            <pillar.icon className={`w-6 h-6 ${pillar.color}`} />
-          </div>
+          <AyenhueIcon 
+            icon={pillar.icon} 
+            colorClass={pillar.color} 
+            bgClass={pillar.bg} 
+            className="scale-110"
+          />
         </div>
 
         <CardTitle className="text-2xl font-bold text-primary group-hover:text-secondary transition-colors leading-tight">
@@ -172,7 +206,7 @@ function PillarCard({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="px-8 pb-8 space-y-5">
+      <CardContent className="px-8 pb-8 space-y-5 relative z-10">
         <CardDescription className="text-base text-muted-foreground leading-relaxed font-medium group-hover:text-foreground/80 transition-colors">
           {pillar.description}
         </CardDescription>
@@ -181,18 +215,17 @@ function PillarCard({
           {pillar.items.map((it) => (
             <div
               key={it.label}
-              className="flex items-center gap-2.5 rounded-2xl border border-gray-100 bg-white px-3.5 py-2.5 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2.5 rounded-2xl border border-gray-100 bg-white px-3.5 py-2.5 hover:bg-gray-50 transition-all hover:translate-x-1"
             >
-              <div className="w-8 h-8 rounded-xl bg-muted/60 flex items-center justify-center">
-                <it.icon className="w-4 h-4 text-primary/70" />
-              </div>
+              {/* CAMBIO: Implementación del nuevo AyenhueMiniIcon */}
+              <AyenhueMiniIcon icon={it.icon} colorClass={pillar.color} />
+              
               <span className="text-sm font-semibold text-gray-700">
                 {it.label}
               </span>
             </div>
           ))}
         </div>
-
       </CardContent>
     </Card>
   );
@@ -200,34 +233,19 @@ function PillarCard({
 
 export default function Services() {
   return (
-    <section id="propuesta" className="py-24 bg-muted/40 relative overflow-hidden">
-      <div className="absolute inset-0 pattern-dots opacity-[0.03] pointer-events-none text-primary"></div>
+    <section id="propuesta" className={cn("relative overflow-hidden bg-white", UI.sectionY)}>
+      <div className={UI.containerX}>
+        <SectionHeader
+          kicker="Nuestra Propuesta Pedagógica"
+          title="Aprendizaje con sentido y valores"
+          subtitle="Un enfoque cálido, seguro y lleno de experiencias: acompañamos a cada niño y niña con cariño, respeto y comunidad."
+        />
 
-      <div className="absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-secondary/10 blur-[90px] pointer-events-none"></div>
-      <div className="absolute -bottom-28 -right-28 w-[520px] h-[520px] rounded-full bg-primary/10 blur-[100px] pointer-events-none"></div>
-
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16 animate-in slide-in-from-bottom-8 duration-700">
-          <span className="text-secondary font-bold tracking-wider uppercase text-xs bg-white px-4 py-2 rounded-full shadow-sm border border-secondary/20 inline-block mb-4">
-            Nuestra Propuesta Pedagógica
-          </span>
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary mb-6">
-            Aprendizaje con sentido y valores
-          </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            Un enfoque cálido, seguro y lleno de experiencias: acompañamos a cada
-            niño y niña con cariño, respeto y comunidad.
-          </p>
-        </div>
-
-        {/* ✅ MEJOR LAYOUT: 3 arriba + 2 abajo centradas (mismo ancho, no gigantes) */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* 3 primeras normal */}
           <PillarCard pillar={pillars[0]} index={0} />
           <PillarCard pillar={pillars[1]} index={1} />
           <PillarCard pillar={pillars[2]} index={2} />
 
-          {/* Fila editorial centrada: ocupa 3 cols pero adentro controla ancho */}
           <div className="xl:col-span-3">
             <div className="mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
               <PillarCard pillar={pillars[3]} index={3} />
@@ -236,7 +254,6 @@ export default function Services() {
           </div>
         </div>
 
-        {/* CTA final */}
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button
             className="rounded-full h-12 px-6 bg-secondary hover:bg-secondary/90 text-primary font-bold shadow-lg"
@@ -246,13 +263,6 @@ export default function Services() {
               Ver actividades y momentos
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="rounded-full h-12 px-6 bg-white/70 backdrop-blur border-gray-200 hover:bg-white text-primary font-bold"
-            asChild
-          >
           </Button>
         </div>
       </div>

@@ -1,15 +1,24 @@
-export const sectionY = "py-24";
-export const containerX = "container mx-auto px-4 md:px-6";
+/**
+ * Design System - Constantes de Estilo Reutilizables
+ * Basado en Tailwind CSS + shadcn/ui tokens
+ */
 
-export const cardBase =
-  "rounded-3xl border border-gray-100 bg-white shadow-sm hover:shadow-lg transition-all duration-300";
+export const UI = {
+  // Espaciado vertical de secciones (consistente en toda la landing)
+  sectionY: "py-24 md:py-32",
 
-export const badgeKicker =
-  "inline-flex items-center px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider " +
-  "border border-secondary/20 bg-secondary/5 text-secondary-foreground shadow-sm";
+  // Contenedor estándar con paddings laterales y centrado
+  containerX: "container mx-auto px-4 md:px-6 relative z-10",
 
-export const h2Section =
-  "mt-4 text-3xl md:text-5xl font-heading font-bold text-primary leading-tight";
+  // Estilo base para tarjetas (usado en Niveles, Sellos, Servicios)
+  cardBase: "bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden group",
 
-export const pSection =
-  "mt-4 text-lg text-muted-foreground leading-relaxed";
+  // Estilo para el "Kicker" o Badge que va sobre el título principal
+  badgeKicker: "text-secondary font-bold tracking-wider uppercase text-xs bg-white px-4 py-2 rounded-full border border-secondary/20 shadow-sm inline-block mb-4",
+
+  // Tipografía para títulos de sección (H2)
+  h2Section: "text-3xl md:text-5xl font-heading font-bold text-primary tracking-tight leading-tight",
+
+  // Tipografía para párrafos de descripción de sección
+  pSection: "text-lg text-muted-foreground leading-relaxed",
+} as const;

@@ -28,7 +28,11 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      // --- ESTO FUERZA A TODAS LAS LIBRERÍAS A USAR TU MISMO REACT ---
+      "react": path.resolve(import.meta.dirname, "node_modules/react"),
+      "react-dom": path.resolve(import.meta.dirname, "node_modules/react-dom"),
     },
+    dedupe: ["react", "react-dom"],
   },
   css: {
     postcss: {
@@ -43,7 +47,6 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     allowedHosts: true,
-    // --- ESTA ES LA PARTE QUE FALTABA ---
     proxy: {
       "/api": {
         target: "http://127.0.0.1:5000",
@@ -51,10 +54,8 @@ export default defineConfig({
         secure: false,
       },
     },
-    // ------------------------------------
     fs: {
-      strict: true,
-      deny: ["**/.*"],
+      strict: false, // Cambiado a false para permitir el acceso a node_modules desde la raíz
     },
   },
 });

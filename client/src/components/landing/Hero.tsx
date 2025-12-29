@@ -1,22 +1,19 @@
-import { Button } from "@/components/ui/button";
-import { ExternalLink, MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ExternalLink, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { UI } from "@/styles/ui";
 
-// ✅ Importa varias imágenes para el carrusel
 import hero1 from "@assets/generated_images/hero_image_of_happy_children_playing_outdoors_in_a_sunny_garden.png";
 import hero2 from "@assets/generated_images/hero_image_2.png";
 import hero3 from "@assets/generated_images/hero_image_3.png";
 
 export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
-
-  // ✅ Estado del carrusel
-  const heroImages = [hero1, hero2, hero3];
   const [activeIndex, setActiveIndex] = useState(0);
+  const heroImages = [hero1, hero2, hero3];
 
-  // ✅ Cambia automático cada X ms
   useEffect(() => {
-    // (opcional) precargar
     heroImages.forEach((src) => {
       const img = new Image();
       img.src = src;
@@ -24,10 +21,9 @@ export default function Hero() {
 
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % heroImages.length);
-    }, 6000); // 6 segundos
+    }, 6000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -35,32 +31,25 @@ export default function Hero() {
       id="inicio"
       className="relative min-h-[95vh] flex items-center justify-center overflow-hidden pb-16 md:pb-24"
     >
-
-      {/* ✅ Background Carousel */}
       <div className="absolute inset-0 z-0 select-none">
         {heroImages.map((src, idx) => (
           <img
             key={src}
             src={src}
             alt="Niños jugando en Jardín Ayenhue"
-            className={[
-              "absolute inset-0 w-full h-full object-cover",
-              "transition-opacity duration-1000 ease-in-out",
-              "scale-105", // tu look actual
-              idx === activeIndex ? "opacity-100" : "opacity-0",
-            ].join(" ")}
-            // (opcional) para priorizar la primera
+            className={cn(
+              "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out scale-105",
+              idx === activeIndex ? "opacity-100" : "opacity-0"
+            )}
             loading={idx === 0 ? "eager" : "lazy"}
           />
         ))}
 
-        {/* Overlays (se mantienen igual) */}
         <div className="absolute inset-0 bg-linear-to-r from-primary/95 via-primary/70 to-primary/20 mix-blend-multiply"></div>
         <div className="absolute inset-0 bg-linear-to-t from-primary/40 to-transparent"></div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 md:px-6 relative z-10 pt-25">
+      <div className={cn(UI.containerX, "pt-25")}>
         <div className="max-w-3xl space-y-8 animate-in slide-in-from-bottom-8 duration-1000 delay-200">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white font-medium text-sm shadow-lg hover:bg-white/15 transition-colors cursor-default">
             <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse shadow-[0_0_10px_rgba(149,206,11,0.5)]"></span>
@@ -140,9 +129,7 @@ export default function Hero() {
       </div>
 
       <div className="absolute -bottom-10 md:-bottom-14 left-0 right-0 z-10 pointer-events-none overflow-hidden h-[70px] md:h-[110px]">
-        {/* Wrapper fijo */}
         <div className="h-full w-full">
-          {/* Track animado */}
           <div className="wave-track h-full flex">
             <svg
               className="w-[1440px] md:w-[1600px] h-full shrink-0 text-background fill-current"
@@ -165,4 +152,3 @@ export default function Hero() {
     </section>
   );
 }
-

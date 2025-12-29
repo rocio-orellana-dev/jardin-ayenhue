@@ -1,0 +1,29 @@
+{
+  "short_name": "Ayenhue",
+  "name": "Jardín Infantil y Sala Cuna Ayenhue",
+  "description": "Lugar de Alegría: Proyecto educativo intercultural en El Molino, Coltauco.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#a3e635",
+  "background_color": "#ffffff",
+  "orientation": "portrait"
+}

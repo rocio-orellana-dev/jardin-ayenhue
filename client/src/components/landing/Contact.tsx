@@ -15,262 +15,249 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Clock, Loader2 } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Loader2, MessageCircle, Star, Heart, Sun } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { UI } from "@/styles/ui";
+import SectionHeader from "@/components/SectionHeader";
 
-// Mantenemos tu esquema local porque tiene los mensajes en español personalizados
+// --- ESTILOS HAND-DRAWN PERSONALIZADOS ---
+const handDrawnBorder = "border-2 border-slate-300 rounded-[15px_5px_15px_5px/5px_20px_5px_25px] bg-white transition-all duration-300";
+const handDrawnButton = "rounded-[20px_10px_25px_10px/10px_25px_10px_20px] border-b-4 border-r-4 border-primary/20 transition-all hover:rounded-[10px_20px_10px_25px/25px_10px_25px_10px]";
+
+// Paleta de colores para el confeti personalizada
+const ayenhueBrandColors = ['#2563eb', '#16a34a', '#ea580c', '#9333ea', '#facc15'];
+
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "El nombre debe tener al menos 2 caracteres.",
-  }),
-  email: z.string().email({
-    message: "Por favor ingrese un correo electrónico válido.",
-  }),
-  phone: z.string().min(8, {
-    message: "Por favor ingrese un número de teléfono válido.",
-  }),
-  message: z.string().min(10, {
-    message: "El mensaje debe tener al menos 10 caracteres.",
-  }),
-  // Campo oculto para seguridad (no se valida en UI, pero se envía)
+  name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
+  email: z.string().email({ message: "Por favor ingrese un correo electrónico válido." }),
+  phone: z.string().min(8, { message: "Por favor ingrese un número de teléfono válido." }),
+  message: z.string().min(10, { message: "El mensaje debe tener al menos 10 caracteres." }),
   honeypot: z.string().optional(),
 });
 
 export default function Contact() {
   const { toast } = useToast();
-  
-  // Estado para saber si se está enviando
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      message: "",
-      honeypot: "", // Inicializamos vacío
-    },
+    defaultValues: { name: "", email: "", phone: "", message: "", honeypot: "" },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true); // Bloqueamos el botón
-
+  // --- FUNCIÓN DE ANIMACIÓN CON IMPORTACIÓN DINÁMICA ---
+  const triggerAyenhueSuccess = async () => {
+    // Evita errores en el lado del servidor
+    if (typeof window === "undefined") return;
+    
     try {
-      // Petición al Backend
+      // Importamos la librería solo cuando se necesita (esto soluciona el conflicto de hooks)
+      const { default: confetti } = await import("canvas-confetti");
+      
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ayenhueBrandColors
+        });
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ayenhueBrandColors
+        });
+
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    } catch (err) {
+      console.error("Error al cargar confetti:", err);
+    }
+  };
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error("Error al enviar");
 
-      if (!response.ok) {
-        throw new Error(data.error || "Error al enviar el mensaje");
-      }
+      // Disparamos la lluvia de colores
+      await triggerAyenhueSuccess();
 
-      // Éxito
       toast({
-        title: "¡Mensaje enviado correctamente!",
-        description: "Nos pondremos en contacto contigo a la brevedad.",
-        variant: "default", // O "success" si tienes configurado ese variante
-        className: "bg-green-50 border-green-200 text-green-900", // Estilo extra opcional
+        title: "¡Mensaje recibido con alegría!",
+        description: "Viviana Díaz o alguien de nuestro equipo te contactará muy pronto.",
+        className: "bg-blue-50 border-blue-200 text-blue-900 font-medium",
       });
-
+      
       form.reset();
     } catch (error) {
-      // Error
-      console.error(error);
       toast({
-        title: "Error al enviar",
-        description: "Hubo un problema. Por favor intenta nuevamente o llámanos.",
+        title: "Hubo un pequeño problema",
+        description: "No pudimos enviar tu mensaje. Por favor, inténtalo de nuevo.",
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false); // Liberamos el botón
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <section id="contacto" className="py-24 bg-white">
-      <div className="container mx-auto px-4 md:px-6">
+    <section id="contacto" className={cn(UI.sectionY, "bg-white relative overflow-hidden")}>
+      {/* Elementos Decorativos */}
+      <Star className="absolute top-10 right-[5%] text-yellow-400/20 w-12 h-12 rotate-12 hidden md:block pointer-events-none" />
+      <Heart className="absolute bottom-20 left-[2%] text-red-300/20 w-10 h-10 -rotate-12 hidden md:block pointer-events-none" />
+      <Sun className="absolute top-40 left-[5%] text-orange-300/10 w-16 h-16 animate-spin-slow hidden md:block pointer-events-none" />
+
+      <div className={cn(UI.containerX)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Contact Info - Sin cambios */}
+          
+          {/* Columna de Información */}
           <div className="space-y-10">
-            <div>
-              <span className="text-secondary font-bold tracking-wider uppercase text-sm">Contacto</span>
-              <h2 className="text-3xl md:text-5xl font-heading font-bold text-primary mt-4">
-                Estamos aquí para ayudarte
-              </h2>
-              <p className="text-lg text-muted-foreground mt-6 leading-relaxed">
-                Si tienes dudas sobre el proceso de matrícula, horarios o quieres agendar una visita, no dudes en escribirnos.
-              </p>
+            <SectionHeader
+              kicker="Contacto"
+              title="Estamos aquí para ayudarte"
+              subtitle="Si tienes dudas sobre el proceso de matrícula o quieres agendar una visita, no dudes en escribirnos."
+              align="left"
+              className="mb-0"
+            />
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[
+                { icon: MapPin, title: "Dirección", desc: "Av. Manuel Montt S/N, Coltauco", color: "text-blue-600", bg: "bg-blue-50" },
+                { icon: Phone, title: "Teléfono", desc: "+56 9 9243 5064", color: "text-green-600", bg: "bg-green-50" },
+                { icon: Mail, title: "Email", desc: "viviana.diaz@daemcoltauco.cl", color: "text-orange-600", bg: "bg-orange-50" },
+                { icon: Clock, title: "Horario", desc: "Lun a Vie: 08:30 - 17:30", color: "text-purple-600", bg: "bg-purple-50" },
+              ].map((item, i) => (
+                <Card key={i} className={cn(handDrawnBorder, "border-slate-200 shadow-sm")}>
+                  <CardContent className="p-6">
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center mb-4", item.bg, item.color)}>
+                      <item.icon className="w-5 h-5" />
+                    </div>
+                    <h4 className="font-bold text-lg text-primary mb-1">{item.title}</h4>
+                    <p className="text-slate-600 text-sm">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Card className="border-none shadow-sm bg-gray-50/50">
-                <CardContent className="p-6">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0 mb-4 text-blue-600">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <h4 className="font-bold text-lg text-primary mb-1">Dirección</h4>
-                  <p className="text-muted-foreground text-sm">Av. Manuel Montt S/N, El Molino, Coltauco</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-sm bg-gray-50/50">
-                <CardContent className="p-6">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0 mb-4 text-green-600">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <h4 className="font-bold text-lg text-primary mb-1">Teléfono</h4>
-                  <p className="text-muted-foreground text-sm">+56 9 9243 5064</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-sm bg-gray-50/50">
-                <CardContent className="p-6">
-                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center shrink-0 mb-4 text-orange-600">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <h4 className="font-bold text-lg text-primary mb-1">Email</h4>
-                  <p className="text-muted-foreground text-sm">viviana.diaz@daemcoltauco.cl</p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-none shadow-sm bg-gray-50/50">
-                <CardContent className="p-6">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center shrink-0 mb-4 text-purple-600">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <h4 className="font-bold text-lg text-primary mb-1">Horario</h4>
-                  <p className="text-muted-foreground text-sm">Lunes a Viernes: 08:30 - 17:30</p>
-                </CardContent>
-              </Card>
+            {/* WhatsApp Card */}
+            <div className={cn(handDrawnBorder, "p-4 border-green-200 bg-green-50/50 flex items-center justify-between")}>
+                <div className="flex items-center gap-3">
+                    <div className="bg-green-500 p-2 rounded-full text-white">
+                        <MessageCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold text-green-700 uppercase leading-tight">Respuesta Rápida</p>
+                        <p className="text-sm text-green-900">¿Dudas por WhatsApp?</p>
+                    </div>
+                </div>
+                <a href="https://wa.me/56992435064" target="_blank" className="bg-green-600 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-green-700 transition-colors shadow-sm">
+                    Chat Directo
+                </a>
             </div>
           </div>
 
-          {/* Form */}
-          <div className="bg-white p-8 md:p-10 rounded-4xl shadow-xl border border-gray-100">
+          {/* Columna de Formulario */}
+          <div className={cn(handDrawnBorder, "p-8 md:p-10 border-slate-200 shadow-xl relative bg-white group")}>
             <h3 className="text-2xl font-bold text-primary mb-8">Envíanos un mensaje</h3>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 
-                {/* CAMPO OCULTO HONEYPOT (Anti-Spam) */}
-                <input type="text" className="hidden" {...form.register("honeypot")} />
+                <div style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                  <input type="text" tabIndex={-1} autoComplete="off" {...form.register("honeypot")} />
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-primary font-bold">Nombre Completo</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Tu nombre" {...field} className="h-12 bg-gray-50 border-gray-200 focus:border-primary/30 rounded-xl" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-primary font-bold">Teléfono</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+56 9..." {...field} className="h-12 bg-gray-50 border-gray-200 focus:border-primary/30 rounded-xl" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary font-bold">Nombre Completo</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Tu nombre" {...field} className={cn("h-12 focus-visible:ring-secondary focus-visible:border-secondary", handDrawnBorder)} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="phone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary font-bold">Teléfono</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+56 9..." {...field} className={cn("h-12 focus-visible:ring-secondary focus-visible:border-secondary", handDrawnBorder)} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                 </div>
                 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-primary font-bold">Correo Electrónico</FormLabel>
-                      <FormControl>
-                        <Input placeholder="tu@email.com" {...field} className="h-12 bg-gray-50 border-gray-200 focus:border-primary/30 rounded-xl" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-bold">Correo Electrónico</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="tu@email.com" {...field} className={cn("h-12 focus-visible:ring-secondary focus-visible:border-secondary", handDrawnBorder)} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-primary font-bold">Mensaje</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="¿En qué podemos ayudarte?" className="min-h-[150px] bg-gray-50 border-gray-200 focus:border-primary/30 rounded-xl resize-none p-4" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="message" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-bold">Mensaje</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="¿En qué podemos ayudarte?" className={cn("min-h-[120px] resize-none focus-visible:ring-secondary focus-visible:border-secondary", handDrawnBorder)} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting} // Deshabilitamos si está cargando
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-14 text-lg rounded-xl shadow-lg transition-transform hover:-translate-y-1 disabled:opacity-70 disabled:hover:translate-y-0"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Enviando...
-                    </>
-                  ) : (
-                    "Enviar Mensaje"
-                  )}
-                </Button>
+                <div className="space-y-4 pt-2">
+                  <Button type="submit" disabled={isSubmitting} className={cn("w-full bg-primary hover:bg-primary/90 text-white font-bold h-14 text-lg shadow-lg active:scale-[0.98]", handDrawnButton)}>
+                    {isSubmitting ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Enviando...</> : "Enviar Mensaje"}
+                  </Button>
+                  <div className="text-center pt-2">
+                    <p className="text-sm font-medium text-slate-400 italic">"Donde cada niño florece con amor"</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Viviana Díaz — Directora Jardín Ayenhue</p>
+                  </div>
+                </div>
               </form>
             </Form>
           </div>
         </div>
-        {/* Mapa Interactivo - Estilo Ayenhue */}
-          <div className="mt-8 overflow-hidden rounded-[2.5rem] border border-gray-100 shadow-lg group">
-            <div className="relative h-[350px] w-full">
-              {/* Overlay sutil para matching de color (opcional) */}
-              <div className="absolute inset-0 bg-primary/5 pointer-events-none group-hover:bg-transparent transition-colors duration-500 z-10"></div>
-              
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m12!1m3!1d3305.6132!2d-71.0151371!3d-34.2621142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96637b34557530e9%3A0xf61266f9303303b1!2sJard%C3%ADn%20Infantil%20Ayenhue!5e0!3m2!1ses-419!2scl!4v1700000000000!5m2!1ses-419!2scl"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={true}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Ubicación Jardín Infantil Ayenhue"
-                className="grayscale-[20%] contrast-[1.1] hover:grayscale-0 transition-all duration-700"
-              ></iframe>
-            </div>
-            
-            {/* Botón de acción rápida sobre el mapa */}
-            <div className="bg-white p-4 flex justify-between items-center border-t border-gray-50">
-              <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-secondary" />
-                Abrir en Google Maps para navegar
-              </span>
-              <Button variant="ghost" size="sm" className="text-primary font-bold hover:text-secondary" asChild>
-                <a 
-                  href="https://maps.app.goo.gl/ChIJ6TB1VTR7Y5YRsQMTMPlmEvY" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  Cómo llegar →
-                </a>
-              </Button>
-            </div>
+
+        {/* Sección de Mapa */}
+        <div className={cn(handDrawnBorder, "mt-12 border-slate-200 overflow-hidden shadow-lg group")}>
+          <div className="relative h-[400px] w-full overflow-hidden">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.156554523671!2d-71.0772545!3d-34.3315714!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x966336e053f5f3e9%3A0x6b4c3e3f3e3e3e3e!2sAv.%20Manuel%20Montt%2C%20Coltauco!5e0!3m2!1ses-419!2scl!4v1700000000000"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Ubicación Jardín Infantil Ayenhue"
+              className="grayscale-[40%] sepia-[20%] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-1000"
+            ></iframe>
           </div>
+          <div className="bg-white p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t-2 border-slate-100">
+            <span className="text-sm font-bold text-slate-600 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-secondary" aria-hidden="true" />
+              Diego Portales con Av. Manuel Montt, El Molino, Coltauco
+            </span>
+            <Button variant="outline" className={cn("text-primary font-bold border-2 border-primary/20 px-8 transition-all shadow-sm", handDrawnButton)} asChild>
+              <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer">Abrir en Google Maps →</a>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );
