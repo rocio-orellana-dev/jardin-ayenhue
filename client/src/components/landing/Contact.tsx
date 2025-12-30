@@ -15,14 +15,17 @@ import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 
+// --- ESTILOS HAND-DRAWN PERSONALIZADOS ---
 const handDrawnBorder = "border-2 border-slate-300 rounded-[15px_5px_15px_5px/5px_20px_5px_25px] bg-white transition-all duration-300";
 const handDrawnButton = "rounded-[20px_10px_25px_10px/10px_25px_10px_20px] border-b-4 border-r-4 border-primary/20 transition-all hover:rounded-[10px_20px_10px_25px/25px_10px_25px_10px]";
-const ayenhueBrandColors = ['#2563eb', '#16a34a', '#ea580c', '#9333ea', '#facc15'];
+
+// --- COLORES INSTITUCIONALES AYENHUE ---
+const ayenhueBrandColors = ['#2563eb', '#16a34a', '#ea580c', '#facc15', '#9333ea'];
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   email: z.string().email({ message: "Por favor ingrese un correo electrónico válido." }),
-  phone: z.string().min(8, { message: "Por favor ingrese un número de teléfono válido." }),
+  phone: z.string().min(12, { message: "Por favor ingrese los 9 dígitos de su número." }),
   message: z.string().min(10, { message: "El mensaje debe tener al menos 10 caracteres." }),
   honeypot: z.string().optional(),
 });
@@ -34,9 +37,11 @@ export default function Contact() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", email: "", phone: "", message: "", honeypot: "" },
+    // MEJORA: Pre-llenamos el teléfono con el código de país
+    defaultValues: { name: "", email: "", phone: "+56 ", message: "", honeypot: "" },
   });
 
+  // --- FUNCIÓN DE ANIMACIÓN CON COLORES DE MARCA ---
   const triggerAyenhueSuccess = async () => {
     if (typeof window === "undefined") return;
     try {
@@ -61,16 +66,25 @@ export default function Contact() {
         body: JSON.stringify(values),
       });
       if (!response.ok) throw new Error("Error");
+      
       await triggerAyenhueSuccess();
-      toast({ title: "¡Mensaje recibido!", description: "Te contactaremos muy pronto.", className: "bg-blue-50 border-blue-200 text-blue-900" });
-      form.reset();
+
+      // MEJORA: Mensaje de éxito personalizado con el nombre del usuario
+      toast({ 
+        title: `¡Mensaje recibido con alegría, ${values.name}!`, 
+        description: "Viviana Díaz o alguien de nuestro equipo te contactará muy pronto.", 
+        className: "bg-blue-50 border-blue-200 text-blue-900 font-medium" 
+      });
+
+      form.reset({ name: "", email: "", phone: "+56 ", message: "", honeypot: "" });
     } catch (error) {
-      toast({ title: "Error", description: "No pudimos enviar el mensaje.", variant: "destructive" });
+      toast({ title: "Hubo un pequeño problema", description: "No pudimos enviar tu mensaje. Por favor, inténtalo de nuevo.", variant: "destructive" });
     } finally { setIsSubmitting(false); }
   }
 
   return (
     <section id="contacto" className={cn(UI.sectionY, "bg-white relative overflow-hidden")}>
+      {/* Elementos Decorativos */}
       <Star className="absolute top-10 right-[5%] text-yellow-400/20 w-12 h-12 rotate-12 hidden md:block pointer-events-none" />
       <Heart className="absolute bottom-20 left-[2%] text-red-300/20 w-10 h-10 -rotate-12 hidden md:block pointer-events-none" />
       <Sun className="absolute top-40 left-[5%] text-orange-300/10 w-16 h-16 animate-spin-slow hidden md:block pointer-events-none" />
@@ -98,9 +112,9 @@ export default function Contact() {
             <div className={cn(handDrawnBorder, "p-4 border-green-200 bg-green-50/50 flex items-center justify-between")}>
               <div className="flex items-center gap-3">
                 <div className="bg-green-500 p-2 rounded-full text-white"><MessageCircle className="w-5 h-5" /></div>
-                <div><p className="text-xs font-bold text-green-700 uppercase">Respuesta Rápida</p><p className="text-sm text-green-900">¿Dudas por WhatsApp?</p></div>
+                <div><p className="text-xs font-bold text-green-700 uppercase leading-tight">Respuesta Rápida</p><p className="text-sm text-green-900">¿Dudas por WhatsApp?</p></div>
               </div>
-              <a href="https://wa.me/56992435064" target="_blank" className="bg-green-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm">Chat Directo</a>
+              <a href="https://wa.me/56992435064" target="_blank" className="bg-green-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-green-700 transition-colors">Chat Directo</a>
             </div>
           </div>
 
@@ -109,30 +123,64 @@ export default function Contact() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true"><input type="text" tabIndex={-1} {...form.register("honeypot")} /></div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* MEJORA: Nombre con auto-capitalización y teclado de texto */}
                   <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-primary font-bold">Nombre Completo</FormLabel>
-                      <FormControl><Input placeholder="Tu nombre" {...field} className={cn("h-12 focus-visible:ring-secondary", handDrawnBorder)} /></FormControl><FormMessage />
+                      <FormControl>
+                        <Input placeholder="Tu nombre" autoComplete="name" autoCapitalize="words" {...field} className={cn("h-12 focus-visible:ring-secondary", handDrawnBorder)} />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )} />
+
+                  {/* MEJORA: Teléfono con teclado numérico y prefijo +56 bloqueado */}
                   <FormField control={form.control} name="phone" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-primary font-bold">Teléfono</FormLabel>
-                      <FormControl><Input placeholder="+56 9..." {...field} className={cn("h-12 focus-visible:ring-secondary", handDrawnBorder)} /></FormControl><FormMessage />
+                      <FormControl>
+                        <Input 
+                          type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
+                          placeholder="+56 9 1234 5678" 
+                          {...field} 
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (!val.startsWith("+56 ")) {
+                              field.onChange("+56 " + val.replace(/^\+56\s*/, ""));
+                            } else {
+                              field.onChange(val);
+                            }
+                          }}
+                          className={cn("h-12 focus-visible:ring-secondary", handDrawnBorder)} 
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )} />
                 </div>
+                
+                {/* MEJORA: Email con teclado optimizado para correos (con @ y .com) */}
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-primary font-bold">Email</FormLabel>
-                    <FormControl><Input type="email" placeholder="tu@email.com" {...field} className={cn("h-12 focus-visible:ring-secondary", handDrawnBorder)} /></FormControl><FormMessage />
+                    <FormControl>
+                      <Input type="email" inputMode="email" autoComplete="email" placeholder="tu@email.com" {...field} className={cn("h-12 focus-visible:ring-secondary", handDrawnBorder)} />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
+                
                 <FormField control={form.control} name="message" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-primary font-bold">Mensaje</FormLabel>
-                    <FormControl><Textarea placeholder="¿En qué podemos ayudarte?" className={cn("min-h-[120px] resize-none focus-visible:ring-secondary", handDrawnBorder)} {...field} /></FormControl><FormMessage />
+                    <FormControl>
+                      <Textarea placeholder="¿En qué podemos ayudarte?" className={cn("min-h-[120px] resize-none focus-visible:ring-secondary", handDrawnBorder)} {...field} />
+                    </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
                 <Button type="submit" disabled={isSubmitting} className={cn("w-full bg-primary text-white font-bold h-14 text-lg shadow-lg active:scale-[0.98]", handDrawnButton)}>
@@ -143,18 +191,17 @@ export default function Contact() {
           </div>
         </div>
 
-        {/* MAPA CON URL DE EMBED CORRECTA */}
+        {/* MAPA CORREGIDO CON EMBED OFICIAL */}
         <div className={cn(handDrawnBorder, "mt-12 border-slate-200 overflow-hidden shadow-lg group relative")}>
           <div className="relative h-[400px] w-full bg-slate-50">
             {!mapLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 animate-pulse text-slate-300">
                 <MapIcon size={48} className="mb-4" />
-                <p className="font-bold text-sm tracking-widest">CARGANDO UBICACIÓN...</p>
+                <p className="font-bold text-sm tracking-widest uppercase">Cargando Ubicación...</p>
               </div>
             )}
             <iframe
-              // URL oficial de inserción (Embed) para evitar el rechazo de conexión
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.397143438992!2d-71.01732578479083!3d-34.26211418055047!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96637b34557530e9%3A0xf61266f9301303b1!2zSmFyZMOtbiBJbmZhbnRpbCBBeWVuaHVl!5e0!3m2!1ses-419!2scl!4v1703884800000!5m2!1ses-419!2scl"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.7352352843486!2d-71.017712!3d-34.2621142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x96637b34557530e9%3A0xf61266f9301303b1!2zSmFyZMOtbiBJbmZhbnRpbCBBeWVuaHVl!5e0!3m2!1ses-419!2scl!4v1735574500000!5m2!1ses-419!2scl"
               width="100%" height="100%" style={{ border: 0 }} allowFullScreen={true} loading="eager" onLoad={() => setMapLoaded(true)}
               referrerPolicy="no-referrer-when-downgrade" title="Ubicación Jardín Infantil Ayenhue"
               className={cn("grayscale-40 group-hover:grayscale-0 transition-all duration-1000", mapLoaded ? "opacity-100" : "opacity-0")}
@@ -166,8 +213,8 @@ export default function Contact() {
               Diego Portales con Av. Manuel Montt, El Molino, Coltauco
             </span>
             <Button variant="outline" className={cn("text-primary font-bold border-2 border-primary/20 px-8 transition-all shadow-sm", handDrawnButton)} asChild>
-              {/* Esta URL abre la navegación directa hacia el Jardín */}
-              <a href="https://www.google.com/maps/dir/?api=1&destination=Jardín+Infantil+Ayenhue+Coltauco&destination_place_id=ChIJ6TB1VTR7Y5YRsQMTMPlmEvY" target="_blank" rel="noopener noreferrer">
+              {/* MEJORA: URL de navegación directa */}
+              <a href="https://www.google.com/maps/dir/?api=1&destination=Jard%C3%ADn+Infantil+Ayenhue+Coltauco" target="_blank" rel="noopener noreferrer">
                 ¿Cómo llegar? →
               </a>
             </Button>
