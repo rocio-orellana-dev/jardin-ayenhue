@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   MessageCircle, Home, Users, 
-  BookOpen, Heart, ImageIcon, ChevronRight 
+  BookOpen, Heart, ImageIcon, ChevronRight, X // Añadimos X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -79,7 +79,6 @@ export default function Navbar() {
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 transition-all duration-500 z-100",
-      // CORRECCIÓN: Fondo blanco sólido sin transparencia al hacer scroll
       isScrolled ? "bg-white shadow-md py-1.5" : "bg-transparent py-5"
     )}>
       <div className={UI.containerX}>
@@ -124,7 +123,6 @@ export default function Navbar() {
             </div>
           </motion.button>
 
-          {/* Desktop Nav */}
           <nav className={cn(
             "hidden xl:flex items-center gap-1 p-1 rounded-full border transition-all duration-500",
             isScrolled ? "bg-slate-100/80 border-slate-200 shadow-inner" : "bg-white/10 border-white/20 backdrop-blur-md"
@@ -159,7 +157,6 @@ export default function Navbar() {
             <button 
               className={cn(
                 "xl:hidden p-3 rounded-xl transition-all duration-500 border",
-                // CORRECCIÓN: Al abrir el menú móvil, el fondo también es blanco sólido
                 isScrolled || isMobileMenuOpen ? "bg-white border-slate-200 shadow-sm" : "bg-white/10 border-white/20 backdrop-blur-md"
               )}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -177,14 +174,24 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 bg-white z-90 flex flex-col p-8 pt-24"
+            className="fixed inset-0 bg-white z-200 flex flex-col p-8 pt-6"
           >
+            {/* BOTÓN DE CIERRE EXPLÍCITO (X) */}
+            <div className="flex justify-end mb-8">
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-primary transition-colors"
+              >
+                <X size={32} />
+              </button>
+            </div>
+
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.href)}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 text-primary font-black text-lg text-left"
+                  className="flex items-center gap-4 p-5 rounded-2xl bg-slate-50 text-primary font-black text-xl text-left active:scale-[0.98] transition-transform"
                 >
                   <link.icon className="w-6 h-6 text-secondary" />
                   {link.name}
@@ -192,7 +199,7 @@ export default function Navbar() {
               ))}
               <Button 
                 onClick={() => handleNavClick("#contacto")}
-                className="w-full rounded-2xl bg-primary text-white font-black h-16 text-xl mt-4"
+                className="w-full rounded-2xl bg-primary text-white font-black h-18 text-xl mt-6 shadow-xl shadow-primary/20"
               >
                 Admisión 2026
               </Button>
