@@ -148,12 +148,6 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button 
-              onClick={() => handleNavClick("#contacto")}
-              className="hidden md:flex rounded-full bg-secondary text-primary font-black px-6 h-10 shadow-lg shadow-secondary/20 border-none hover:bg-secondary/90"
-            >
-              Admisión 2026
-            </Button>
             <button 
               className={cn(
                 "xl:hidden p-3 rounded-xl transition-all duration-500 border",

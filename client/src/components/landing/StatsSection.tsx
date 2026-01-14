@@ -188,7 +188,7 @@ export default function StatsSection() {
             Transparencia Institucional
           </span>
           <h2 className="text-4xl md:text-5xl font-heading font-black text-primary tracking-tight">
-            Creciendo juntos <span className="text-slate-300 font-light italic">cada día</span>
+            Creciendo juntos <span className="text-secondary italic font-light text-3xl md:text-5xl">cada día</span>
           </h2>
         </div>
 
@@ -207,15 +207,6 @@ export default function StatsSection() {
           "mt-32 flex flex-col items-center transition-all duration-1000",
           completed === total ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         )}>
-          <Button 
-            className="rounded-full bg-secondary hover:bg-secondary/90 text-primary font-bold px-14 h-16 text-xl shadow-[0_15px_35px_rgba(163,230,53,0.25)] hover:shadow-[0_20px_45px_rgba(163,230,53,0.35)] transition-all group"
-            asChild
-          >
-            <a href="#contacto">
-              Quiero saber más
-              <ArrowRight className="ml-2 w-6 h-6 transition-transform group-hover:translate-x-2" />
-            </a>
-          </Button>
           <p className="mt-6 text-[10px] text-slate-300 font-black uppercase tracking-[0.3em]">
             Proceso de matrícula abierto 2026
           </p>

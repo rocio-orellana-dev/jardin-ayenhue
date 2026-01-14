@@ -255,15 +255,6 @@ export default function Services() {
         </div>
 
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button
-            className="rounded-full h-12 px-6 bg-secondary hover:bg-secondary/90 text-primary font-bold shadow-lg"
-            asChild
-          >
-            <a href="#galeria">
-              Ver actividades y momentos
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
-          </Button>
         </div>
       </div>
     </section>
