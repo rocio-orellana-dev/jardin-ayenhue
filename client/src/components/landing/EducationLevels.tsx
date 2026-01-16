@@ -7,36 +7,20 @@ import SectionHeader from "@/components/SectionHeader";
 
 const levels = [
   {
-    name: "Sala Cuna Menor",
-    age: "84 días a 1 año",
+    name: "Sala Cuna Heterogénea",
+    age: "84 días a 2 años",
     description: "Ambiente cálido y seguro diseñado para el desarrollo sensorial y el apego seguro.",
     icon: Baby,
     color: "text-blue-600",
     bg: "bg-blue-50",
   },
   {
-    name: "Sala Cuna Mayor",
-    age: "1 a 2 años",
-    description: "Fomentamos los primeros pasos y el lenguaje a través de la exploración constante.",
-    icon: Users,
-    color: "text-green-600",
-    bg: "bg-green-50",
-  },
-  {
-    name: "Nivel Medio Menor",
-    age: "2 a 3 años",
+    name: "Nivel Medio Heterogéneo",
+    age: "2 a 4 años",
     description: "Potenciamos la autonomía y la socialización mediante el juego colaborativo.",
     icon: Puzzle,
     color: "text-orange-600",
     bg: "bg-orange-50",
-  },
-  {
-    name: "Nivel Medio Mayor",
-    age: "3 a 4 años",
-    description: "Preparación integral enfocada en la curiosidad, el pensamiento lógico y la identidad.",
-    icon: ToyBrick,
-    color: "text-purple-600",
-    bg: "bg-purple-50",
   },
 ];
 
@@ -51,7 +35,7 @@ export default function EducationLevels() {
           subtitle="Nuestros programas están adaptados al ritmo de crecimiento de cada niño, garantizando un aprendizaje significativo y respetuoso."
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 max-w-6xl mx-auto justify-items-center">
           {levels.map((level, index) => (
             <Card 
               key={index}

@@ -7,19 +7,8 @@ import { UI } from "@/styles/ui";
 const STATS_CONFIG = [
   { 
     id: 1, 
-    label: "Cupos disponibles 2026", 
-    value: 12, 
-    icon: Sparkles,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50",
-    glowColor: "rgba(245, 158, 11, 0.12)", 
-    floatDelay: "0s",
-    morphSpeed: "14s"
-  },
-  { 
-    id: 2, 
     label: "Niños y niñas actualmente", 
-    value: 94, 
+    value: 50, 
     icon: Users,
     color: "text-sky-600",
     bgColor: "bg-sky-50",
@@ -28,7 +17,7 @@ const STATS_CONFIG = [
     morphSpeed: "17s"
   },
   { 
-    id: 3, 
+    id: 2, 
     label: "Niveles educativos", 
     value: 2, 
     icon: GraduationCap, 
@@ -40,9 +29,9 @@ const STATS_CONFIG = [
     morphSpeed: "19s"
   },
   { 
-    id: 4, 
+    id: 3, 
     label: "Equipo educativo", 
-    value: 10, 
+    value: 13, 
     icon: UserCheck,
     color: "text-rose-600",
     bgColor: "bg-rose-50",
@@ -142,7 +131,7 @@ function StatCard({ stat, delay, onFinish }: { stat: typeof STATS_CONFIG[0], del
         </strong>
 
         <div className="space-y-2 text-center">
-          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em] leading-tight max-w-[140px] group-hover:text-slate-600 transition-colors">
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em] leading-tight max-w-35 group-hover:text-slate-600 transition-colors">
             {stat.label}
           </p>
           {stat.description && (
@@ -192,7 +181,7 @@ export default function StatsSection() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-20 lg:gap-10 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 max-w-6xl mx-auto justify-items-center">
           {STATS_CONFIG.map((stat, index) => (
             <StatCard 
               key={stat.id} 

@@ -9,6 +9,7 @@ import hero1 from "@assets/generated_images/hero1.webp";
 import hero2 from "@assets/generated_images/hero_image_2.webp";
 import hero3 from "@assets/generated_images/hero_image_3.webp";
 
+
 export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);

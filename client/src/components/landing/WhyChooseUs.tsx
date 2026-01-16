@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 
-import img1 from "@assets/generated_images/outdoor_playground_structure.png";
-import img2 from "@assets/generated_images/hero_image_2.webp";
-import img3 from "@assets/generated_images/hero_image_3.webp";
+import img1 from "@assets/generated_images/elegir1.webp";
+import img2 from "@assets/generated_images/elegir2.webp";
+import img3 from "@assets/generated_images/elegir3.webp";
 
 export default function WhyChooseUs() {
   const benefits = [
@@ -89,7 +89,7 @@ export default function WhyChooseUs() {
   return (
     <section id="porque-elegirnos" className={cn(UI.sectionY, "bg-white")}>
       <div className={UI.containerX}>
-        <div className="bg-muted/30 rounded-[3rem] p-8 md:p-12 lg:p-16 overflow-hidden">
+        <div className="bg-white/30 rounded-[3rem] p-8 md:p-12 lg:p-16 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="space-y-8">
               <SectionHeader
@@ -118,7 +118,7 @@ export default function WhyChooseUs() {
 
             <div className="relative w-full">
               <div
-                className="relative h-[340px] sm:h-[420px] lg:h-[500px] w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 select-none touch-pan-y outline-none focus-visible:ring-4 focus-visible:ring-secondary/50 transition-shadow"
+                className="relative h-85 sm:h-105 lg:h-125 w-full rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 select-none touch-pan-y outline-none focus-visible:ring-4 focus-visible:ring-secondary/50 transition-shadow"
                 role="region"
                 aria-roledescription="carousel"
                 aria-label="Galería de nuestras instalaciones"
