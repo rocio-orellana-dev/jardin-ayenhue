@@ -136,7 +136,7 @@ export default function Hero() {
       </div>
 
       {/* WAVE ANIMATION: Separada para evitar layout shifts */}
-      <div className="absolute -bottom-1 left-0 right-0 z-10 pointer-events-none h-[70px] md:h-[110px]">
+      <div className="absolute -bottom-1 left-0 right-0 z-10 pointer-events-none h-17-5 md:h-27.5">
         <div className="wave-track h-full flex opacity-100">
            <svg className="w-full h-full text-background fill-current" viewBox="0 0 1440 320" preserveAspectRatio="none">
              <path d="M0,220 C480,100 960,340 1440,220 L1440,320 L0,320 Z"></path>

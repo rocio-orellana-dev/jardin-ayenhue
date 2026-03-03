@@ -21,7 +21,7 @@ cloudinary.config({
 // 2. CONFIGURACIÓN DE MULTER (Memoria para subir a la nube)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 100 * 1024 * 1024 } // Límite de 5MB
+  limits: { fileSize: 100 * 1024 * 1024 } // Límite de 100MB para videos
 });
 
 // Rate limiters
@@ -77,7 +77,7 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
         const uploadStream = cloudinary.uploader.upload_stream(
           { 
             folder: "jardin_ayenhue",
-            resource_type: "auto" // <--- ¡MAGIA! Esto permite detectar si es video o imagen
+            resource_type: "auto" // Detecta automáticamente si es video o imagen
           },
           (error, result) => {
             if (error) reject(error);
@@ -115,12 +115,10 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
       body("email").isEmail().normalizeEmail(),
       body("phone").trim().escape(),
       body("message").trim().isLength({ min: 5 }).escape(),
-      body("honeypot").isEmpty(),
     ],
     async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) return res.status(400).json({ error: "Datos inválidos" });
-      if (req.body.honeypot) return res.status(400).json({ error: "Spam" });
 
       try {
         const validated = insertContactMessageSchema.parse({ ...req.body, status: "new", ip: req.ip });
@@ -193,10 +191,12 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
     const created = await storage.createGalleryImage(validated);
     res.status(201).json(created);
   });
+  // RUTA PARA ACTUALIZAR/REEMPLAZAR IMAGEN
   app.patch("/api/admin/gallery/:id", requireAdmin, async (req, res) => {
     const updated = await storage.updateGalleryImage(parseInt(req.params.id), req.body);
     res.json(updated);
   });
+  // RUTA PARA ELIMINAR IMAGEN
   app.delete("/api/admin/gallery/:id", requireAdmin, async (req, res) => {
     await storage.deleteGalleryImage(parseInt(req.params.id));
     res.json({ success: true });

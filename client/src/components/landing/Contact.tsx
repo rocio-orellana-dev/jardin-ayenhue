@@ -178,7 +178,7 @@ export default function Contact() {
                 <FormField control={form.control} name="message" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-primary font-bold">Mensaje</FormLabel>
-                    <FormControl><Textarea placeholder="¿En qué podemos ayudarte?" className={cn("min-h-[120px] resize-none focus-visible:ring-secondary", handDrawnBorder)} {...field} /></FormControl><FormMessage />
+                    <FormControl><Textarea placeholder="¿En qué podemos ayudarte?" className={cn("min-h-30 resize-none focus-visible:ring-secondary", handDrawnBorder)} {...field} /></FormControl><FormMessage />
                   </FormItem>
                 )} />
                 <Button type="submit" disabled={isSubmitting} className={cn("w-full bg-primary text-white font-bold h-14 text-lg shadow-lg active:scale-[0.98]", handDrawnButton)}>
@@ -191,7 +191,7 @@ export default function Contact() {
 
         {/* MAPA CORREGIDO: URL DE EMBED OFICIAL */}
         <div className={cn(handDrawnBorder, "mt-12 border-slate-200 overflow-hidden shadow-lg group relative")}>
-          <div className="relative h-[400px] w-full bg-slate-50">
+          <div className="relative h-100 w-full bg-slate-50">
             {!mapLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 animate-pulse text-slate-300">
                 <MapIcon size={48} className="mb-4" />

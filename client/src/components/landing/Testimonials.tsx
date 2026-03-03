@@ -1,35 +1,10 @@
-import { useState } from "react";
-// 1. Importamos 'Variants' para resolver los errores de tipado
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-// --- IMPORTACIONES ---
-import almendraImg from "@assets/generated_images/almendra.jpg";
-import nayarethImg from "@assets/generated_images/nayareth.jpg";
-
-const testimonials = [
-  {
-    name: "Almendra Daniela Dominguez Morales",
-    role: "Ex Apoderada",
-    content: "Fue excelente haber formado parte, como apoderada, de esta comunidad educativa. Quedé muy contenta con los avances significativos que tuvo nuestra hija y las experiencias exitosas que logró junto a nosotros. Todo esto no habría sido posible sin la labor de cada una de las Tías, en especial de la Tía Sofía Bravo Fuentes y la Tía Gisselle Moscoso Arce.",
-    avatar: almendraImg 
-  },
-  {
-    name: "Rosario Roman",
-    role: "Abuela de Ex Alumnas",
-    content: "Estoy profundamente agradecida del Jardín Ayenhue. Mis dos nietas dieron sus primeros pasos aquí recibiendo una formación completa: sociabilidad, principios y modales. Hoy les va excelente en el colegio y ambas cuentan con excelencia académica. ¡Mil gracias, Tías! Que Dios las bendiga siempre.",
-    avatar: "RR" 
-  },
-  {
-    name: "Nayareth Bravo Rojas",
-    role: "Apoderada",
-    content: "Que gran familia es Ayenhue ♥️ primera actividad de Bruno sin duda como mamá estoy orgullosa de ser parte de esta hermosa familia y que nuestro niños promuevan el respeto y la inclusión desde pequeñitos 🙂 todos somos iguales 🫶🏻",
-    avatar: nayarethImg 
-  }
-];
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import type { Testimonial } from "@shared/schema";
 
 // --- SUB-COMPONENTE: COMILLA ANIMADA ---
 function AnimatedQuote() {
@@ -52,20 +27,37 @@ function AnimatedQuote() {
 }
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
+  // CARGA DE DATOS DESDE LA API
+  useEffect(() => {
+    fetch("/api/testimonials")
+      .then((res) => res.json())
+      .then((data) => {
+        setTestimonials(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error cargando testimonios:", error);
+        setLoading(false);
+      });
+  }, []);
+
   const next = () => {
+    if (testimonials.length === 0) return;
     setDirection(1);
     setIndex((prev) => (prev + 1) % testimonials.length);
   };
   
   const prev = () => {
+    if (testimonials.length === 0) return;
     setDirection(-1);
     setIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  // 2. Aplicamos el tipo 'Variants' para evitar el error TS2322
   const containerVariants: Variants = {
     enter: (direction: number) => ({
       opacity: 0,
@@ -87,9 +79,6 @@ export default function Testimonials() {
     })
   };
 
-  const words = testimonials[index].content.split(" ");
-
-  // 3. Aplicamos 'Variants' al contenedor de la máquina de escribir
   const typewriterContainer: Variants = {
     hidden: { opacity: 1 },
     visible: {
@@ -101,7 +90,6 @@ export default function Testimonials() {
     },
   };
 
-  // 4. Aplicamos 'Variants' aquí para que acepte el arreglo Bézier en 'ease'
   const typewriterWord: Variants = {
     hidden: { 
       opacity: 0, 
@@ -116,10 +104,23 @@ export default function Testimonials() {
       scale: 1,
       transition: { 
         duration: 0.6, 
-        ease: [0.2, 0.65, 0.3, 0.9] // Ahora TS reconoce esto como una curva válida
+        ease: [0.2, 0.65, 0.3, 0.9]
       },
     },
   };
+
+  if (loading) {
+    return (
+      <div className="py-20 flex justify-center items-center">
+        <Loader2 className="h-10 w-10 animate-spin text-secondary" />
+      </div>
+    );
+  }
+
+  if (testimonials.length === 0) return null;
+
+  const currentTestimonial = testimonials[index];
+  const words = currentTestimonial.content.split(" ");
 
   return (
     <section id="testimonios" className={cn(UI.sectionY, "bg-white relative overflow-hidden")}>
@@ -144,10 +145,10 @@ export default function Testimonials() {
             }}
           />
 
-          <div className="relative min-h-[450px] md:min-h-[400px] flex items-center justify-center p-4">
+          <div className="relative min-h-112.5 md:min-h-100 flex items-center justify-center p-4">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
-                key={index}
+                key={currentTestimonial.id}
                 custom={direction}
                 variants={containerVariants}
                 initial="enter"
@@ -165,7 +166,7 @@ export default function Testimonials() {
                       variants={typewriterContainer}
                       initial="hidden"
                       animate="visible"
-                      key={index}
+                      key={currentTestimonial.id}
                       className="inline-block"
                     >
                       {words.map((word, i) => (
@@ -183,21 +184,23 @@ export default function Testimonials() {
                       transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                       className="w-20 h-20 bg-white rounded-4xl flex items-center justify-center text-secondary font-black text-2xl border border-slate-100 shadow-lg overflow-hidden shrink-0"
                     >
-                      {testimonials[index].avatar.length > 2 ? (
+                      {currentTestimonial.avatar_url ? (
                         <img
-                          src={testimonials[index].avatar}
-                          alt={testimonials[index].name}
+                          src={currentTestimonial.avatar_url}
+                          alt={currentTestimonial.name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-secondary/40 italic">{testimonials[index].avatar}</span>
+                        <span className="text-secondary/40 italic">
+                          {currentTestimonial.name.charAt(0)}
+                        </span>
                       )}
                     </motion.div>
                     
                     <div className="text-left">
-                      <h4 className="font-black text-primary text-xl leading-tight">{testimonials[index].name}</h4>
+                      <h4 className="font-black text-primary text-xl leading-tight">{currentTestimonial.name}</h4>
                       <p className="text-secondary font-black text-[10px] uppercase tracking-[0.25em] mt-2 bg-secondary/5 px-3 py-1 rounded-full inline-block">
-                        {testimonials[index].role}
+                        {currentTestimonial.role}
                       </p>
                     </div>
                   </div>

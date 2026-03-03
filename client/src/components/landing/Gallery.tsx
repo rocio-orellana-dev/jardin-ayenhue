@@ -2,13 +2,22 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { 
   FolderOpen, X, ChevronLeft, ChevronRight, PlayCircle, 
-  ZoomIn, Leaf, Sparkles, Sun, Cloud, Hand 
+  ZoomIn, Leaf, Sparkles, Sun, Cloud, Hand, Loader2 
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { UI } from "@/styles/ui";
 import SectionHeader from "@/components/SectionHeader";
 import type { GalleryImage } from "@shared/schema";
+
+// --- TIPO DE DATOS ---
+type Album = { 
+  title: string; 
+  coverImage: string; 
+  isVideoCover: boolean; 
+  count: number; 
+  images: GalleryImage[]; 
+};
 
 // --- COMPONENTES DE SKELETON ---
 function OrganicCloudSkeleton({ className }: { className?: string }) {
@@ -34,7 +43,7 @@ function GallerySkeleton() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mt-16 relative z-10">
       {[1, 2, 3].map((i) => (
         <div key={i} className="relative my-6">
-          <div className="h-[380px] w-full relative">
+          <div className="h-95 w-full relative">
             <OrganicCloudSkeleton className="relative z-10 text-slate-200" />
           </div>
           <div className="space-y-5 px-6 mt-8">
@@ -77,45 +86,17 @@ function FloatingElements({ isModalOpen }: { isModalOpen: boolean }) {
 
 // --- TARJETA DE ÁLBUM ---
 function AlbumCard({ album, index, onOpen }: { album: Album, index: number, onOpen: (a: Album) => void }) {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
   const rotation = index % 3 === 0 ? "rotate-2" : index % 3 === 1 ? "-rotate-2" : "rotate-1";
 
   return (
     <motion.div 
-      ref={cardRef}
       initial={{ opacity: 0, y: 20 }} 
       whileInView={{ opacity: 1, y: 0 }} 
       viewport={{ once: true }} 
       onClick={() => onOpen(album)}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
       className="group cursor-pointer relative my-6"
     >
-      <AnimatePresence>
-        {isHovering && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            className="absolute z-40 pointer-events-none"
-            style={{ left: mousePos.x, top: mousePos.y }}
-          >
-            <Sparkles className="text-secondary w-8 h-8 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className={cn("relative h-[400px] bg-white rounded-[3rem] border-[6px] border-white shadow-xl overflow-hidden z-10 transition-all duration-500 group-hover:-translate-y-3", rotation)}>
+      <div className={cn("relative h-100 bg-white rounded-[3rem] border-[6px] border-white shadow-xl overflow-hidden z-10 transition-all duration-500 group-hover:-translate-y-3", rotation)}>
         <img src={album.coverImage} alt={album.title} className="w-full h-full object-cover transition-all duration-1000 saturate-[0.8] group-hover:saturate-100 group-hover:scale-110" />
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <div className="bg-white/90 p-4 rounded-full text-primary shadow-xl"><ZoomIn size={32} /></div>
@@ -133,23 +114,15 @@ function AlbumCard({ album, index, onOpen }: { album: Album, index: number, onOp
   );
 }
 
+// --- ANIMACIONES DEL LIGHTBOX ---
 const pageFlipVariants: Variants = {
-  enter: (direction: number) => ({ x: direction > 0 ? 800 : -800, rotateY: direction > 0 ? 45 : -45, opacity: 0, scale: 0.9 }),
+  enter: (direction: number) => ({ x: direction > 0 ? 500 : -500, opacity: 0, scale: 0.95 }),
   center: { 
-    zIndex: 1, 
-    x: 0, 
-    rotateY: 0, 
-    opacity: 1, 
-    scale: 1, 
-    transition: { 
-      x: { type: "spring", stiffness: 300, damping: 30 }, 
-      opacity: { duration: 0.4 } 
-    } 
+    zIndex: 1, x: 0, opacity: 1, scale: 1, 
+    transition: { x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.3 } } 
   },
-  exit: (direction: number) => ({ zIndex: 0, x: direction < 0 ? 800 : -800, rotateY: direction < 0 ? 45 : -45, opacity: 0, scale: 0.9 } )
+  exit: (direction: number) => ({ zIndex: 0, x: direction < 0 ? 500 : -500, opacity: 0, scale: 0.95 })
 };
-
-type Album = { title: string; coverImage: string; isVideoCover: boolean; count: number; images: GalleryImage[]; };
 
 export default function Gallery() {
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -180,7 +153,8 @@ export default function Gallery() {
         }));
         setAlbums(list);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const paginate = useCallback((newDir: number) => {
@@ -195,10 +169,8 @@ export default function Gallery() {
     document.body.style.overflow = 'hidden';
     if (!sessionStorage.getItem("ayenhue_swipe_hint")) {
       setShowSwipeHint(true);
-      setTimeout(() => {
-        setShowSwipeHint(false);
-        sessionStorage.setItem("ayenhue_swipe_hint", "true");
-      }, 3500);
+      setTimeout(() => setShowSwipeHint(false), 3500);
+      sessionStorage.setItem("ayenhue_swipe_hint", "true");
     }
   };
 
@@ -217,7 +189,12 @@ export default function Gallery() {
       <FloatingElements isModalOpen={!!selectedAlbum} />
 
       <div className={cn(UI.containerX, "relative z-10")}>
-        <SectionHeader kicker="Galería de Tesoros" title="Momentos que dejan huella" subtitle="Un recorrido por la alegría y el descubrimiento de nuestros niños y niñas." />
+        <SectionHeader 
+          kicker="Galería de Tesoros" 
+          title="Momentos que dejan huella" 
+          subtitle="Un recorrido por la alegría y el descubrimiento de nuestros niños y niñas." 
+        />
+        
         {loading ? <GallerySkeleton /> : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mt-16">
             {albums.map((album, i) => <AlbumCard key={i} album={album} index={i} onOpen={openAlbum} />)}
@@ -227,61 +204,81 @@ export default function Gallery() {
 
       <AnimatePresence>
         {selectedAlbum && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-1000 bg-black/95 backdrop-blur-xl flex items-center justify-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-1000 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-between">
             
-            <AnimatePresence>
-              {showSwipeHint && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-1100 flex flex-col items-center justify-center pointer-events-none">
-                  <motion.div animate={{ x: [-50, 50, -50] }} transition={{ duration: 2, repeat: Infinity }} className="text-secondary mb-4">
-                    <Hand size={80} fill="currentColor" className="opacity-40" />
-                  </motion.div>
-                  <p className="text-white font-handwritten text-2xl">Desliza para navegar</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <div className="absolute top-0 left-0 w-full p-6 md:p-10 flex justify-between items-center z-50">
-              <div className="text-white">
-                <h3 className="text-xl md:text-2xl font-black font-heading leading-none mb-1">{selectedAlbum.title}</h3>
+            {/* Header del Modal */}
+            <div className="w-full p-6 md:p-10 flex justify-between items-center text-white z-50">
+              <div className="flex flex-col">
+                <h3 className="text-xl md:text-2xl font-black font-heading leading-tight">{selectedAlbum.title}</h3>
                 <span className="text-xs font-bold uppercase tracking-widest text-white/40">{currentImageIndex + 1} de {selectedAlbum.images.length}</span>
               </div>
-              <button onClick={closeAlbum} className="p-4 bg-white/10 rounded-full text-white hover:bg-secondary hover:text-primary transition-all"><X size={28} /></button>
+              <button onClick={closeAlbum} className="p-4 bg-white/10 rounded-full text-white hover:bg-secondary hover:text-primary transition-all shadow-lg"><X size={28} /></button>
             </div>
 
-            <button className="absolute left-8 text-white/20 hover:text-secondary hidden md:block z-50 transition-colors" onClick={() => paginate(-1)}><ChevronLeft size={80} strokeWidth={1} /></button>
-            
-            <div className="relative w-full h-[60vh] md:h-[75vh] flex items-center justify-center touch-none">
+            {/* Controles Laterales (Desktop) */}
+            <button className="absolute left-8 top-1/2 -translate-y-1/2 text-white/20 hover:text-secondary hidden md:block z-50 transition-colors" onClick={() => paginate(-1)}><ChevronLeft size={80} strokeWidth={1} /></button>
+            <button className="absolute right-8 top-1/2 -translate-y-1/2 text-white/20 hover:text-secondary hidden md:block z-50 transition-colors" onClick={() => paginate(1)}><ChevronRight size={80} strokeWidth={1} /></button>
+
+            {/* Visor de Imagen/Video Mejorado para Responsive */}
+            <div className="relative w-full flex-1 flex items-center justify-center p-4 overflow-hidden touch-none">
               <AnimatePresence initial={false} custom={direction} mode="popLayout">
                 <motion.div 
                   key={currentImageIndex} custom={direction} variants={pageFlipVariants} initial="enter" animate="center" exit="exit"
-                  className="absolute w-full h-full flex items-center justify-center px-4"
-                  drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.8}
-                  onDragStart={() => setShowSwipeHint(false)}
+                  className="absolute w-full h-full flex flex-col items-center justify-center"
+                  drag="x" dragConstraints={{ left: 0, right: 0 }}
                   onDragEnd={(_, { offset, velocity }) => {
                     const swipe = offset.x * velocity.x;
                     if (swipe < -5000) paginate(1);
                     else if (swipe > 5000) paginate(-1);
                   }}
                 >
-                  <div className="relative max-w-full max-h-full flex flex-col items-center">
-                    {isVideo(selectedAlbum.images[currentImageIndex].url) ? (
-                      <video src={selectedAlbum.images[currentImageIndex].url} className="max-w-full max-h-full rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" controls autoPlay muted />
-                    ) : (
-                      <img src={selectedAlbum.images[currentImageIndex].url} alt="Galería" className="max-w-full max-h-full object-contain rounded-4xl shadow-2xl border-4 border-white/10 pointer-events-none" />
-                    )}
+                  <div className="relative flex flex-col items-center max-w-full max-h-full">
+                    <div className="relative max-h-[60vh] md:max-h-[75vh] flex items-center justify-center px-4">
+                      {isVideo(selectedAlbum.images[currentImageIndex].url) ? (
+                        <video 
+                          src={selectedAlbum.images[currentImageIndex].url} 
+                          className="max-w-full max-h-full rounded-2xl md:rounded-4xl shadow-2xl border-4 border-white/10" 
+                          controls autoPlay muted loop
+                        />
+                      ) : (
+                        <img 
+                          src={selectedAlbum.images[currentImageIndex].url} 
+                          alt="Galería" 
+                          className="max-w-full max-h-full object-contain rounded-2xl md:rounded-4xl shadow-2xl border-4 border-white/10" 
+                        />
+                      )}
+                    </div>
 
-                    {/* CORRECCIÓN: Descripción adaptable para móviles */}
+                    {/* Descripción con espacio garantizado */}
                     {selectedAlbum.images[currentImageIndex].description && (
-                      <div className="mt-6 md:absolute md:-bottom-16 md:left-1/2 md:-translate-x-1/2 bg-secondary text-primary px-6 py-3 rounded-2xl md:rounded-full font-handwritten text-lg md:text-xl shadow-xl text-center max-w-[90vw] md:max-w-xl whitespace-normal">
+                      <motion.div 
+                        initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                        className="mt-6 md:mt-10 bg-secondary text-primary px-6 py-3 rounded-2xl md:rounded-full font-handwritten text-lg md:text-xl shadow-xl text-center max-w-[90vw] md:max-w-2xl whitespace-normal"
+                      >
                         {selectedAlbum.images[currentImageIndex].description}
-                      </div>
+                      </motion.div>
                     )}
                   </div>
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            <button className="absolute right-8 text-white/20 hover:text-secondary hidden md:block z-50 transition-colors" onClick={() => paginate(1)}><ChevronRight size={80} strokeWidth={1} /></button>
+            {/* Hint de Navegación Móvil */}
+            <div className="pb-8 md:hidden text-white/30 text-xs flex items-center gap-2">
+              <Hand size={16} /> Desliza para navegar
+            </div>
+
+            {/* Hint Flotante Inicial */}
+            <AnimatePresence>
+              {showSwipeHint && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-1100 flex flex-col items-center justify-center pointer-events-none bg-black/20">
+                  <motion.div animate={{ x: [-30, 30, -30] }} transition={{ duration: 2, repeat: Infinity }} className="text-secondary mb-4">
+                    <Hand size={80} fill="currentColor" className="opacity-40" />
+                  </motion.div>
+                  <p className="text-white font-handwritten text-2xl">Desliza para explorar</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

@@ -53,11 +53,11 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden">
       {/* --- Fondo Decorativo Animado --- */}
       {/* Círculo superior izquierdo (Cálido/Rosado) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-rose-200/40 rounded-full blur-[100px] animate-pulse" />
+      <div className="absolute top-[-10%] left-[-10%] w-125 h-125 bg-rose-200/40 rounded-full blur-[100px] animate-pulse" />
       {/* Círculo inferior derecho (Fresco/Azul) */}
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-200/40 rounded-full blur-[100px] animate-pulse delay-1000" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-125 h-125 bg-indigo-200/40 rounded-full blur-[100px] animate-pulse delay-1000" />
       {/* Círculo central (Brillante/Amarillo suave) */}
-      <div className="absolute top-[40%] left-[40%] transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-amber-100/40 rounded-full blur-[80px]" />
+      <div className="absolute top-[40%] left-[40%] transform -translate-x-1/2 -translate-y-1/2 w-75 h-75 bg-amber-100/40 rounded-full blur-[80px]" />
 
       <div className="relative w-full max-w-md px-6">
         {/* --- Tarjeta Principal con Efecto Glass --- */}
