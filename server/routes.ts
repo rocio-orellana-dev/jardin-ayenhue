@@ -104,7 +104,14 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
     const { password } = req.body;
     if (password === process.env.ADMIN_PASSWORD) {
       req.session.isAdmin = true;
-      res.json({ success: true });
+      // IMPORTANTE: Exigimos guardar la sesión de forma explícita, porque Vercel Serverless
+      // podría terminar el proceso (handler) antes de que la escritura asíncrona a NeonPG haya terminado.
+      req.session.save((err) => {
+        if (err) {
+          return res.status(500).json({ error: "Error al guardar la sesión en base de datos" });
+        }
+        res.json({ success: true });
+      });
     } else {
       res.status(401).json({ error: "Contraseña incorrecta" });
     }
