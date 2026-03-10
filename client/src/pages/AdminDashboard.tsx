@@ -10,7 +10,7 @@ import {
 import { 
   Loader2, LogOut, Trash2, CheckCircle, XCircle, RefreshCw, 
   MessageSquare, Star, Plus, ImageIcon, ExternalLink, Upload, Pencil, Ban,
-  Building2, Shield, Filter, EyeOff, LayoutDashboard
+  Building2, Shield, Filter, EyeOff, LayoutDashboard, X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -26,14 +26,17 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   
-  const ALBUM_CATEGORIES = [
+  // --- GESTIÓN DE CATEGORÍAS (DINÁMICAS) ---
+  const [categories, setCategories] = useState([
     "Vida Saludable",
     "Actividades Educativas",
     "Infraestructura",
     "Eventos y Celebraciones",
     "Talleres y Arte",
     "Salidas Pedagógicas"
-  ];
+  ]);
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
   
   // --- ESTADOS DE FORMULARIOS ---
   const [testimonialForm, setTestimonialForm] = useState({ 
@@ -76,6 +79,10 @@ export default function AdminDashboard() {
       setTestimonials(testimonialsData);
       setGalleryImages(galleryData);
       
+      // Sincronizar categorías con las que ya existen en la BD
+      const existingCategories = galleryData.map((img: GalleryImage) => img.title).filter(Boolean);
+      setCategories(prev => Array.from(new Set([...prev, ...existingCategories])));
+
       const unread = messagesData.filter((msg: ContactMessage) => msg.status === 'new').length;
       setUnreadCount(unread);
       
@@ -191,6 +198,13 @@ export default function AdminDashboard() {
   const handleCreateImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedGalleryFile) return;
+
+    const finalTitle = isAddingNewCategory ? newCategoryName : newImageMeta.title;
+    if (!finalTitle) {
+      toast({ title: "Seleccione o cree una categoría", variant: "destructive" });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const formData = new FormData();
@@ -203,14 +217,21 @@ export default function AdminDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           url, 
-          title: newImageMeta.title, 
+          title: finalTitle, 
           description: newImageMeta.description, 
           displayOrder: galleryImages.length + 1,
           isActive: true
         }),
       });
+
+      if (isAddingNewCategory && !categories.includes(finalTitle)) {
+        setCategories(prev => [...prev, finalTitle]);
+      }
+
       toast({ title: "Subido a la galería" });
       setNewImageMeta({ title: "", description: "" });
+      setNewCategoryName("");
+      setIsAddingNewCategory(false);
       setSelectedGalleryFile(null);
       fetchData();
     } catch (error) {
@@ -218,6 +239,15 @@ export default function AdminDashboard() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const removeCategory = (catToRemove: string) => {
+    if (!confirm(`¿Eliminar la categoría "${catToRemove}" de la lista? (Las fotos existentes no se borrarán)`)) return;
+    setCategories(prev => prev.filter(c => c !== catToRemove));
+    if (newImageMeta.title === catToRemove) {
+      setNewImageMeta({ ...newImageMeta, title: "" });
+    }
+    toast({ title: "Categoría quitada de la lista" });
   };
 
   const handleReplaceImage = async (id: number) => {
@@ -445,22 +475,92 @@ export default function AdminDashboard() {
                   <CardHeader className="pt-6 px-6 pb-2"><CardTitle className="text-lg font-bold">Subir Multimedia</CardTitle></CardHeader>
                   <CardContent className="p-6">
                     <form onSubmit={handleCreateImage} className="space-y-5">
-                      <div className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-purple-50" onClick={() => galleryFileInputRef.current?.click()}>
+                      <div className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-purple-50 transition-colors" onClick={() => galleryFileInputRef.current?.click()}>
                         <input type="file" className="hidden" ref={galleryFileInputRef} onChange={e => setSelectedGalleryFile(e.target.files?.[0] || null)} />
-                        {selectedGalleryFile ? <div className="text-purple-600 font-bold">{selectedGalleryFile.name}</div> : <div className="text-slate-400">Clic para seleccionar</div>}
+                        {selectedGalleryFile ? (
+                          <div className="flex items-center justify-center gap-2 text-purple-600 font-bold animate-in fade-in zoom-in-95">
+                            <CheckCircle size={20} /> {selectedGalleryFile.name}
+                          </div>
+                        ) : (
+                          <div className="text-slate-400 flex flex-col items-center gap-2">
+                            <Upload className="h-8 w-8 opacity-40" />
+                            <span>Clic para seleccionar archivo</span>
+                          </div>
+                        )}
                       </div>
-                      <select 
-                        className="w-full h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-purple-100 text-sm p-2"
-                        value={newImageMeta.title}
-                        onChange={e => setNewImageMeta({...newImageMeta, title: e.target.value})}
-                        required
-                      >
-                        <option value="" disabled>Seleccionar Álbum...</option>
-                        {ALBUM_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                      </select>
-                      <Input placeholder="Descripción corta" value={newImageMeta.description} onChange={e => setNewImageMeta({...newImageMeta, description: e.target.value})} className="rounded-xl" />
-                      <Button type="submit" disabled={isSubmitting || !selectedGalleryFile} className="w-full bg-linear-to-r from-purple-500 to-indigo-600 rounded-xl h-12 text-white shadow-lg">
-                        {isSubmitting ? <Loader2 className="animate-spin" /> : "Subir Archivo"}
+
+                      <div className="space-y-3">
+                        {!isAddingNewCategory ? (
+                          <div className="flex gap-2">
+                            <div className="relative flex-1">
+                              <select 
+                                className="w-full h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-purple-100 text-sm p-2 pr-10 appearance-none"
+                                value={newImageMeta.title}
+                                onChange={(e) => {
+                                  if (e.target.value === "ADD_NEW") {
+                                    setIsAddingNewCategory(true);
+                                    setNewImageMeta({ ...newImageMeta, title: "" });
+                                  } else {
+                                    setNewImageMeta({ ...newImageMeta, title: e.target.value });
+                                  }
+                                }}
+                                required
+                              >
+                                <option value="" disabled>Seleccionar Álbum...</option>
+                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                <option value="ADD_NEW" className="font-bold text-indigo-600">+ Crear nueva categoría...</option>
+                              </select>
+                              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+                                <Filter size={14} />
+                              </div>
+                            </div>
+                            
+                            {newImageMeta.title && (
+                              <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => removeCategory(newImageMeta.title)}
+                                className="text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl h-11 w-11 shrink-0"
+                                title="Eliminar categoría de la lista"
+                              >
+                                <X size={18} />
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 animate-in slide-in-from-top-2">
+                            <Input 
+                              placeholder="Nombre del nuevo álbum" 
+                              value={newCategoryName}
+                              onChange={(e) => setNewCategoryName(e.target.value)}
+                              className="rounded-xl h-11 focus-visible:ring-purple-400"
+                              autoFocus
+                            />
+                            <Button 
+                              type="button" 
+                              variant="ghost" 
+                              onClick={() => {
+                                setIsAddingNewCategory(false);
+                                setNewCategoryName("");
+                              }}
+                              className="text-slate-400 hover:text-rose-500 rounded-xl h-11 w-11 px-0"
+                            >
+                              <Ban size={18} />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+
+                      <Input 
+                        placeholder="Descripción corta" 
+                        value={newImageMeta.description} 
+                        onChange={e => setNewImageMeta({...newImageMeta, description: e.target.value})} 
+                        className="rounded-xl h-11" 
+                      />
+
+                      <Button type="submit" disabled={isSubmitting || !selectedGalleryFile} className="w-full bg-linear-to-r from-purple-500 to-indigo-600 rounded-xl h-12 text-white shadow-lg hover:shadow-purple-200 transition-all active:scale-95">
+                        {isSubmitting ? <Loader2 className="animate-spin" /> : <><Plus className="mr-2 h-5 w-5" /> Subir a la Galería</>}
                       </Button>
                     </form>
                   </CardContent>
@@ -470,31 +570,33 @@ export default function AdminDashboard() {
               <div className="lg:col-span-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {galleryImages.map(img => (
-                    <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border-4 border-white">
+                    <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border-4 border-white hover:z-10 hover:scale-105">
                       {isVideo(img.url) ? <video src={img.url} className="w-full h-full object-cover" muted loop /> : <img src={img.url} className="w-full h-full object-cover" />}
                       
-                      {/* OVERLAY ACCIONES */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      {/* OVERLAY ACCIONES (Refinado con el estilo blanco/rosa/indigo) */}
+                      <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                         <Button 
                           size="icon" 
                           variant="secondary" 
-                          className="rounded-full bg-white text-indigo-600 hover:bg-indigo-50"
+                          className="rounded-full bg-white text-indigo-600 hover:bg-indigo-50 shadow-lg hover:scale-110 transition-transform h-12 w-12"
                           onClick={() => handleReplaceImage(img.id)}
                           title="Cambiar imagen"
                         >
-                          <RefreshCw size={20} />
+                          <RefreshCw size={22} />
                         </Button>
                         <Button 
                           size="icon" 
-                          variant="destructive" 
-                          className="rounded-full shadow-lg"
+                          variant="secondary" 
+                          className="rounded-full bg-white text-rose-600 hover:bg-rose-50 shadow-lg hover:scale-110 transition-transform h-12 w-12"
                           onClick={() => deleteImage(img.id)}
                           title="Eliminar"
                         >
-                          <Trash2 size={20} />
+                          <Trash2 size={22} />
                         </Button>
                       </div>
-                      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold">
+                      
+                      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm border border-slate-100 flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                         {img.title || "General"}
                       </div>
                     </div>
