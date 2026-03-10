@@ -46,8 +46,9 @@ const httpServer = createServer(app);
 // Las funciones Serverless no esperan a un Immediately Invoked Function Expression asíncrono.
 registerRoutes(app, httpServer);
 
-// Solo iniciamos el servidor web con createServer.listen() y serveStatic si NO estamos en produccion serverless de Vercel.
-if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+// Iniciamos el servidor web con createServer.listen() si no estamos en VERCEL.
+// Importante para Render/Railway, donde sí existe NODE_ENV=production.
+if (!process.env.VERCEL) {
   (async () => {
     if (app.get("env") === "development") {
       const { setupVite } = await import("./vite");
