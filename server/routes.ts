@@ -43,7 +43,7 @@ const loginLimiter = rateLimit({
 
 // Middleware de Autorización
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.session.isAdmin) return res.status(401).json({ error: "No autorizado" });
+  if (!req.session || !req.session.isAdmin) return res.status(401).json({ error: "No autorizado" });
   next();
 }
 
@@ -108,6 +108,9 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
   app.post("/api/admin/login", loginLimiter, asyncHandler(async (req: Request, res: Response) => {
     const { password } = req.body;
     if (password === process.env.ADMIN_PASSWORD) {
+      if (!req.session) {
+        return res.status(500).json({ error: "No se pudo conectar al sistema de sesiones. Verifica la base de datos." });
+      }
       req.session.isAdmin = true;
       // IMPORTANTE: Exigimos guardar la sesión de forma explícita, porque Vercel Serverless
       // podría terminar el proceso (handler) antes de que la escritura asíncrona a NeonPG haya terminado.
@@ -123,11 +126,15 @@ export async function registerRoutes(app: Express, httpServer: Server): Promise<
   }));
 
   app.post("/api/admin/logout", (req, res) => {
-    req.session.destroy(() => res.json({ success: true }));
+    if (req.session) {
+      req.session.destroy(() => res.json({ success: true }));
+    } else {
+      res.json({ success: true });
+    }
   });
 
   app.get("/api/admin/check", (req, res) => {
-    res.json({ isAdmin: !!req.session.isAdmin });
+    res.json({ isAdmin: !!(req.session && req.session.isAdmin) });
   });
 
   // --- CRUD ADMIN (PROTEGIDO) ---

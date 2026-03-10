@@ -14,6 +14,11 @@ export const pool = new Pool({
   max: 1, // En Serverless (Vercel) solo debe haber 1 conexión por instancia
 });
 
+pool.on("error", (err) => {
+  console.error("Unexpected event on idle Neon PostgreSQL client:", err);
+  // No salimos de process.exit() porque Vercel lo maneja
+});
+
 export const db = drizzle(pool, { schema });
 
 export function log(message: string, source = "express") {

@@ -14,14 +14,21 @@ app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+const poolStore = new PostgresStore({
+  pool: pool,
+  tableName: "session",
+  createTableIfMissing: true,
+  errorLog: console.error
+});
+
+poolStore.on('error', (err) => {
+  console.error("Session store background error:", err);
+});
+
 // SESIÓN GLOBAL ÚNICA
 app.use(
   session({
-    store: new PostgresStore({
-      pool: pool,
-      tableName: "session",
-      createTableIfMissing: true,
-    }),
+    store: poolStore,
     secret: process.env.SESSION_SECRET || "ayenhue-prod-2026",
     resave: false,
     saveUninitialized: false,
