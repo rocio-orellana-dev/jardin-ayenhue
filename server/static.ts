@@ -3,8 +3,8 @@ import express, { type Express } from "express";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  // dist/public es lo que tu build está generando en Render
-  const publicDir = path.resolve(process.cwd(), "dist", "public");
+  // dist es lo que tu build de Vite está generando (ver vite.config.ts)
+  const publicDir = path.resolve(process.cwd(), "dist");
 
   // 1) ESTÁTICOS PRIMERO (assets, css, js, favicon, etc)
   app.use(
