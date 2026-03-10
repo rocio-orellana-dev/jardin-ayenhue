@@ -5,18 +5,20 @@ import * as schema from "@shared/schema";
 const { Pool } = pg;
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("Falta DATABASE_URL en las variables de entorno");
+  throw new Error("Falta DATABASE_URL");
 }
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { 
-    rejectUnauthorized: false // Requerido para Neon en la nube
-  },
-  // Configuraciones críticas para Serverless
-  max: 1, // En Vercel, es mejor mantener pocas conexiones por instancia
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 30000,
+  ssl: { rejectUnauthorized: false }, // Obligatorio para Neon
+  max: 1, // En Serverless (Vercel) solo debe haber 1 conexión por instancia
 });
 
 export const db = drizzle(pool, { schema });
+
+export function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
