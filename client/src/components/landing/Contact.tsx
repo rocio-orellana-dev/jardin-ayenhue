@@ -208,7 +208,7 @@ export default function Contact() {
           <div className="bg-white p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t-2 border-slate-100">
             <span className="text-sm font-bold text-slate-600 flex items-center gap-2">
               <MapPin className="w-5 h-5 text-secondary" />
-              Diego Portales con Av. Manuel Montt, El Molino, Coltauco
+              Av. Manuel Montt, El Molino, Coltauco
             </span>
             <Button variant="outline" className={cn("text-primary font-bold border-2 border-primary/20 px-8 transition-all shadow-sm", handDrawnButton)} asChild>
               <a href="https://maps.google.com/?q=Jardín+Infantil+Ayenhue+Coltauco" target="_blank" rel="noopener noreferrer">
