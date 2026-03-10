@@ -11,9 +11,12 @@ if (!process.env.DATABASE_URL) {
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { 
-    rejectUnauthorized: false // <--- ESTO ES OBLIGATORIO PARA NEON EN DESARROLLO
+    rejectUnauthorized: false // Requerido para Neon en la nube
   },
-  max: 20,
+  // Configuraciones críticas para Serverless
+  max: 1, // En Vercel, es mejor mantener pocas conexiones por instancia
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000,
 });
 
 export const db = drizzle(pool, { schema });
