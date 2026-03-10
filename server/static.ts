@@ -3,8 +3,12 @@ import express, { type Express } from "express";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  // dist es lo que tu build de Vite está generando (ver vite.config.ts)
-  const publicDir = path.resolve(process.cwd(), "dist");
+  // Cuando corremos `node dist/index.cjs`, __dirname o equivalent resolve a 'dist'.
+  // Como construimos el server y cliente juntos, la ruta ideal al dist estático es
+  // simplemente apuntar a la misma carpeta donde reside este index.cjs compilado,
+  // es decir, import.meta.url o __dirname en CJS.
+  // En nuestro script de build de ESBuild, el CJS resultante vive en /dist.
+  const publicDir = path.resolve(__dirname);
 
   // 1) ESTÁTICOS PRIMERO (assets, css, js, favicon, etc)
   app.use(express.static(publicDir));
