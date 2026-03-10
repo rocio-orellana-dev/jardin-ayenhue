@@ -7,13 +7,13 @@ export function serveStatic(app: Express) {
   const publicDir = path.resolve(process.cwd(), "dist");
 
   // 1) ESTÁTICOS PRIMERO (assets, css, js, favicon, etc)
-  app.use(
-    express.static(publicDir, {
-      index: false,
-      maxAge: "1y",
-      immutable: true,
-    })
-  );
+  app.use(express.static(publicDir));
+
+  // Opcional: Servir la carpeta assets explícitamente para asegurar que los MIME types sean correctos
+  app.use("/assets", express.static(path.join(publicDir, "assets"), {
+    immutable: true,
+    maxAge: "1y"
+  }));
 
   // 2) Fallback SPA AL FINAL
   // Importante: esto debe ir después de express.static, si no rompe /assets/*
