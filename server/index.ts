@@ -20,6 +20,7 @@ app.use(
     store: new PostgresStore({
       pool: pool,
       tableName: "session",
+      createTableIfMissing: true,
     }),
     secret: process.env.SESSION_SECRET || "ayenhue-prod-2026",
     resave: false,
@@ -54,5 +55,13 @@ if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     });
   })();
 }
+
+// Global Error Handler for Express
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error("Express Error:", err);
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  res.status(status).json({ error: message });
+});
 
 export default app;
