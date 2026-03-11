@@ -2,6 +2,8 @@ import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import helmet from "helmet";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -10,7 +12,22 @@ import { pool } from "./db";
 const app = express();
 const PostgresStore = connectPg(session);
 
-app.set('trust proxy', 1); 
+// 1. SEGURIDAD BÁSICA (CORS y Cabeceras HTTP Seguras)
+app.set('trust proxy', 1);
+
+// Configuramos Helmet para cabeceras seguras
+app.use(helmet({
+  contentSecurityPolicy: false, // Desactivado temporalmente para no romper Vite en desarrollo
+  crossOriginEmbedderPolicy: false, 
+}));
+
+// Configuramos CORS para permitir peticiones solo desde dominios específicos si es necesario
+// Por defecto allow all en la misma API, pero es una buena práctica tenerlo
+app.use(cors({
+  origin: process.env.NODE_ENV === "production" ? ["https://jardinayenhue.cl", "https://www.jardinayenhue.cl"] : true,
+  credentials: true, // Necesario para enviar cookies de sesión
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
