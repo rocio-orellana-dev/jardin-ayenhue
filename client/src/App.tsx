@@ -7,11 +7,14 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import AdminDashboard from "@/pages/AdminDashboard";
+import Privacidad from "@/pages/Privacidad";
+import { CookieBanner } from "@/components/CookieBanner";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/privacidad" component={Privacidad} />
       <Route path="/login" component={Login} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
@@ -42,6 +45,7 @@ export default function App() {
 
           <div className="relative z-10">
             <Toaster />
+            <CookieBanner />
             <Router />
           </div>
 

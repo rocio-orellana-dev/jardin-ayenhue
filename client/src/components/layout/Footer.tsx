@@ -101,7 +101,13 @@ export default function Footer() {
 
         {/* Bottom bar - Derechos y Créditos */}
         <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 font-medium">
-          <p>&copy; {new Date().getFullYear()} Jardín Infantil Ayenhue. Todos los derechos reservados.</p>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+            <p>&copy; {new Date().getFullYear()} Jardín Infantil Ayenhue. Todos los derechos reservados.</p>
+            <span className="hidden md:inline text-slate-300">|</span>
+            <a href="/privacidad" className="hover:text-primary transition-colors underline underline-offset-2">
+              Políticas de Privacidad
+            </a>
+          </div>
           <p className="flex items-center gap-1">
             Diseñado con cariño para la comunidad 
             <Heart className="w-3 h-3 text-red-500 fill-current" aria-hidden="true" />
