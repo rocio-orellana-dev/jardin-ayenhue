@@ -17,8 +17,20 @@ app.set('trust proxy', 1);
 
 // Configuramos Helmet para cabeceras seguras
 app.use(helmet({
-  contentSecurityPolicy: false, // Desactivado temporalmente para no romper Vite en desarrollo
-  crossOriginEmbedderPolicy: false, 
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      // Vite en desarrollo inyecta estilos y scripts, y React usa ciertas evaluaciones
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      // Permitimos cargar fuentes desde Google Fonts
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      // Habilitamos Cloudinary para la carga de imágenes, y datos para SVG (favicon)
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+      connectSrc: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
 }));
 
 // Configuramos CORS para permitir peticiones solo desde dominios específicos si es necesario
