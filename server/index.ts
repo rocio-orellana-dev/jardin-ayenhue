@@ -15,17 +15,18 @@ const PostgresStore = connectPg(session);
 // 1. SEGURIDAD BÁSICA (CORS y Cabeceras HTTP Seguras)
 app.set('trust proxy', 1);
 
-// Configuramos Helmet para cabeceras seguras
+// Configuramos Helmet para cabeceras seguras ultra-estrictas
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      // Vite en desarrollo inyecta estilos y scripts, y React usa ciertas evaluaciones
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      objectSrc: ["'none'"], // Previene cargar plugins como Flash/Java
+      // En producción bloqueamos scripts inline. En desarrollo Vite los necesita.
+      scriptSrc: process.env.NODE_ENV === "production" 
+        ? ["'self'"] 
+        : ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      // Permitimos cargar fuentes desde Google Fonts
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      // Habilitamos Cloudinary para la carga de imágenes, y datos para SVG (favicon)
       imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
       connectSrc: ["'self'"],
     },
